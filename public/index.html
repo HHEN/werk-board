@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14181d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Werk">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<title>Werk Board</title>
+
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-column phone board. Sticky week bar + day strip, then the day's slabs (A / B / notes) like a gym whiteboard. Plate colours mark A and B. */
+:root{
+  --bg:#eceef1; --surface:#ffffff; --ink:#14181d; --muted:#5a6370; --line:#d3d8df;
+  --blue:#1f4fa8; --red:#c0392b; --yellow:#b88a00; --green:#2e7a48;
+  --accent:var(--blue); --accent-soft:#dfe7f5; --on-accent:#ffffff;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101317; --surface:#181c22; --ink:#e9ecf0; --muted:#97a1ad; --line:#2a3039;
+  --blue:#5b8de6; --red:#e8695c; --yellow:#e2b62e; --green:#5bb47c;
+  --accent-soft:#1d2a40; --on-accent:#0d1117; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101317; --surface:#181c22; --ink:#e9ecf0; --muted:#97a1ad; --line:#2a3039;
+  --blue:#5b8de6; --red:#e8695c; --yellow:#e2b62e; --green:#5bb47c;
+  --accent-soft:#1d2a40; --on-accent:#0d1117; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 40px}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px 10px;display:grid;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:.02em;line-height:1;text-transform:uppercase}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.tools{display:flex;gap:6px;align-items:center}
+select,button{font:inherit;color:var(--ink)}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;max-width:140px}
+.icon-btn{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:36px;height:34px;display:grid;place-items:center;cursor:pointer}
+.icon-btn:focus-visible,.day:focus-visible,.wk-btn:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.spin svg{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+.weekbar{display:flex;align-items:center;gap:8px}
+.wk-btn{background:none;border:0;padding:6px 8px;cursor:pointer;color:var(--muted);font-size:20px;line-height:1}
+.wk-btn:disabled{opacity:.3;cursor:default}
+.wk-mid{flex:1;min-width:0;text-align:center}
+.wk-title{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.03em;line-height:1.1}
+.wk-sub{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.wk-focus{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 0 6px;cursor:pointer;display:grid;gap:1px;justify-items:center}
+.day b{font-family:var(--display);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.04em}
+.day span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.day.today{border-color:var(--accent)}
+.day[aria-selected="true"]{background:var(--ink);border-color:var(--ink)}
+.day[aria-selected="true"] b,.day[aria-selected="true"] span{color:var(--bg)}
+
+main{display:grid;gap:12px;margin-top:6px}
+.dayhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.dayhead h1{font-family:var(--display);font-weight:800;font-size:34px;line-height:1;text-transform:uppercase;margin:0;text-wrap:balance}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip.focus{border-color:transparent;background:var(--accent);color:var(--on-accent)}
+
+.slab{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 16px;display:grid;grid-template-columns:auto 1fr;gap:12px;min-width:0}
+.plate{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:18px;color:#fff;box-shadow:inset 0 0 0 4px rgba(255,255,255,.18)}
+.plate.a{background:var(--blue)}.plate.b{background:var(--red)}.plate.n{background:var(--yellow)}
+.slab-body{min-width:0}
+.slab-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.wod{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55}
+.wod .fmt{display:block;font-family:var(--display);font-weight:800;font-size:21px;text-transform:uppercase;letter-spacing:.02em;line-height:1.15;margin-bottom:4px}
+.wod .load{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+.notes .wod{font-size:14px;color:var(--ink)}
+.notes .wod .hl{color:var(--green);font-weight:600}
+
+.empty,.banner{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px 16px;color:var(--muted);font-size:14px}
+.banner{border-style:solid;border-color:var(--yellow);color:var(--ink)}
+.banner b{display:block;margin-bottom:2px}
+.foot{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){.spin svg{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="top">
+      <div class="brand">Werk Board<small id="cycleLabel">Class programming</small></div>
+      <div class="tools">
+        <label for="tabSel" hidden>Cycle</label>
+        <select id="tabSel" aria-label="Cycle"></select>
+        <button class="icon-btn" id="refresh" aria-label="Refresh from sheet"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+      </div>
+    </div>
+    <div class="weekbar">
+      <button class="wk-btn" id="prevWk" aria-label="Previous week">‹</button>
+      <div class="wk-mid"><div class="wk-title" id="wkTitle">Week –</div><div class="wk-sub" id="wkSub">Loading the sheet…</div></div>
+      <button class="wk-btn" id="nextWk" aria-label="Next week">›</button>
+    </div>
+    <div class="days" id="days" role="tablist" aria-label="Days"></div>
+  </header>
+  <main id="main"><div class="empty">Loading this week's workouts from WEEKLY OVERVIEW PROGRAMMING…</div></main>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const $ = id => document.getElementById(id);
+const S = { tab:null, tabs:[], weeks:[], wi:0, di:0, updated:null, unsub:null, picked:false, error:null };
+
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+const clean = v => String(v ?? "").replace(/^'/, "").replace(/\r/g,"").trim();
+function parseDate(s){
+  const m = clean(s).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  return m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
+}
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const sameDay = (a,b) => a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+const fmt = d => d ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"}) : "";
+
+function parseSheet(values){
+  const weeks = []; let cur = null;
+  for (let r = 0; r < values.length; r++){
+    const row = values[r] || []; const a = clean(row[0]);
+    if (/^\d{1,2}$/.test(a)){
+      cur = { no:+a, rows:{}, dates:[] }; weeks.push(cur);
+      const next = values[r+1] || [];
+      if (!clean(next[0])){ cur.dates = next.slice(1,8).map(parseDate); r++; }
+      continue;
+    }
+    if (cur && a) cur.rows[a.toLowerCase()] = Array.from({length:7}, (_,i) => clean(row[i+1]));
+  }
+  weeks.forEach(w => {
+    const i = w.dates.findIndex(Boolean);
+    w.start = i >= 0 ? addDays(w.dates[i], -i) : null;
+    const A = w.rows["wod a"] || [], B = w.rows["wod b"] || [];
+    w.filled = A.some(Boolean) || B.some(Boolean);
+  });
+  return weeks.filter(w => w.filled);
+}
+
+function pickToday(){
+  const t = new Date(); t.setHours(0,0,0,0);
+  let wi = S.weeks.findIndex(w => w.start && t >= w.start && t < addDays(w.start,7));
+  let di = 0;
+  if (wi >= 0) di = Math.round((t - S.weeks[wi].start) / 864e5);
+  else {
+    wi = S.weeks.findIndex(w => w.start && w.start > t);
+    if (wi < 0) wi = S.weeks.length - 1;
+  }
+  S.wi = Math.max(0, wi); S.di = Math.min(6, Math.max(0, di));
+}
+
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const FMT_RE = /^(AMRAP|EMOM|E\d|For time|\d+ rounds|\d+ sets|Teams of|Team|Every|On the|For Time|\d+-\d+)/i;
+function wodHTML(text, notes){
+  return text.split("\n").map((ln, i) => {
+    const e = esc(ln);
+    if (!notes && i === 0 && FMT_RE.test(ln)) return `<span class="fmt">${e}</span>`;
+    if (notes) return e.replace(/^(Echo Bike variation|RPE 5 option|Goal|TC|Strength)(:)/, '<span class="hl">$1$2</span>');
+    return e.replace(/(\d+(?:\.\d+)?\/\d+(?:\.\d+)?\s?(?:kg|cal|m)?'?)/g, '<span class="load">$1</span>');
+  }).join("\n");
+}
+
+function render(){
+  const w = S.weeks[S.wi];
+  $("prevWk").disabled = S.wi <= 0;
+  $("nextWk").disabled = S.wi >= S.weeks.length - 1;
+  $("cycleLabel").textContent = S.tab ? S.tab : "Class programming";
+  if (!w){
+    $("wkTitle").textContent = "No weeks yet";
+    $("wkSub").textContent = S.error ? "" : "This cycle has no programmed weeks.";
+    $("days").innerHTML = "";
+    $("main").innerHTML = S.error ? bannerHTML() : `<div class="empty">Nothing programmed in ${esc(S.tab||"this cycle")} yet. Workouts appear here as soon as they're in the sheet.</div>`;
+    return;
+  }
+  const wf = (w.rows["focus of the week"]||[])[0];
+  $("wkTitle").textContent = `Week ${w.no}`;
+  $("wkSub").innerHTML = (w.start ? `${fmt(w.start)} – ${fmt(addDays(w.start,6))}` : "") + (wf ? `<span class="wk-focus">${esc(wf)}</span>` : "");
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  $("days").innerHTML = DAYS.map((d,i) => {
+    const date = w.start ? addDays(w.start,i) : null;
+    return `<button class="day${sameDay(date,today)?" today":""}" role="tab" aria-selected="${i===S.di}" data-i="${i}"><b>${d}</b><span>${date?date.getDate():""}</span></button>`;
+  }).join("");
+
+  const g = k => (w.rows[k]||[])[S.di] || "";
+  const A = g("wod a"), B = g("wod b"), N = g("notes");
+  const focus = g("focus of the day"), fn = g("movement function"), skill = g("primary fitness skill");
+  const date = w.start ? addDays(w.start, S.di) : null;
+  const sunday = S.di === 6;
+
+  let html = S.error ? bannerHTML() : "";
+  html += `<div class="dayhead"><h1>${DAY_NAMES[S.di]}</h1><div class="chips">${focus?`<span class="chip focus">${esc(focus)}</span>`:""}${fn?`<span class="chip">${esc(fn)}</span>`:""}${skill?`<span class="chip">${esc(skill)}</span>`:""}</div></div>`;
+  if (!A && !B) html += `<div class="empty">Rest day, or nothing programmed for ${DAY_NAMES[S.di]}${date?` ${fmt(date)}`:""}.</div>`;
+  if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false);
+  if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false);
+  if (N) html += slab("n","!", "Notes", N, true);
+  $("main").innerHTML = html;
+  $("foot").textContent = S.updated ? `Updated from the sheet ${new Date(S.updated).toLocaleString("de-DE",{weekday:"short",hour:"2-digit",minute:"2-digit"})}` : "";
+}
+const slab = (cls, mark, label, text, notes) =>
+  `<section class="slab${notes?" notes":""}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, notes)}</div></div></section>`;
+
+function bannerHTML(){
+  const e = S.error; if (!e) return "";
+  const msgs = {
+    sheet_error: ["Couldn't load the workouts", e.message || "Tap refresh to try again."],
+    bad_tab: ["That cycle tab wasn't found", "Pick another cycle."],
+    offline: ["You're offline", "Showing the last loaded copy. Tap refresh when you have signal."]
+  };
+  const [t, d] = msgs[e.code] || ["Couldn't load the sheet", "Showing the last loaded copy if there is one. Tap refresh to try again."];
+  return `<div class="banner" role="status"><b>${esc(t)}</b>${esc(d)}</div>`;
+}
+
+function applyValues(values, storedAt){
+  const keepPos = S.picked && S.weeks.length;
+  const prevNo = keepPos ? S.weeks[S.wi]?.no : null;
+  S.weeks = parseSheet(values || []);
+  S.updated = storedAt || Date.now();
+  S.error = null;
+  if (prevNo != null){ const i = S.weeks.findIndex(w => w.no === prevNo); if (i >= 0) S.wi = i; else pickToday(); }
+  else pickToday();
+  store.set("werk:"+S.tab, { values, at:S.updated });
+  render();
+}
+
+let DATA = null;
+async function getData(fresh){
+  if (DATA && !fresh) return DATA;
+  let r;
+  try { r = await fetch("/data.json", { cache: "no-store" }); }
+  catch (e) { throw { code: "offline" }; }
+  if (!r.ok) throw { code: "sheet_error", message: "data.json could not be loaded." };
+  DATA = await r.json();
+  return DATA;
+}
+async function api(params){
+  const d = await getData(!params.list);
+  if (params.list) return { tabs: Object.keys(d.tabs) };
+  if (!d.tabs[params.tab]) throw { code: "bad_tab" };
+  return { values: d.tabs[params.tab], updated: d.updated };
+}
+
+async function load(manual){
+  const btn = $("refresh"); btn.classList.add("spin");
+  try {
+    const j = await api({ tab: S.tab });
+    if (manual) S.picked = true;
+    applyValues(j.values, Date.parse(j.updated) || undefined);
+  } catch (e) { S.error = e; render(); }
+  finally { btn.classList.remove("spin"); }
+}
+
+function showTab(){
+  S.picked = false;
+  const cached = store.get("werk:"+S.tab);
+  if (cached){ S.weeks = parseSheet(cached.values); S.updated = cached.at; pickToday(); }
+  else S.weeks = [];
+  render();
+  load(false);
+}
+
+function fillTabs(){
+  $("tabSel").innerHTML = S.tabs.map(t => `<option${t===S.tab?" selected":""}>${esc(t)}</option>`).join("");
+}
+
+$("days").addEventListener("click", e => { const b = e.target.closest(".day"); if (!b) return; S.di = +b.dataset.i; S.picked = true; render(); });
+$("prevWk").onclick = () => { if (S.wi > 0){ S.wi--; S.di = 0; S.picked = true; render(); } };
+$("nextWk").onclick = () => { if (S.wi < S.weeks.length-1){ S.wi++; S.di = 0; S.picked = true; render(); } };
+$("refresh").onclick = () => load(true);
+$("tabSel").onchange = e => { S.tab = e.target.value; store.set("werk:tab", S.tab); showTab(); };
+
+// swipe between days
+let sx = null, sy = null;
+$("main").addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+$("main").addEventListener("touchend", e => {
+  if (sx == null) return;
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+  if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+  S.picked = true;
+  if (dx < 0){ if (S.di < 6) S.di++; else if (S.wi < S.weeks.length-1){ S.wi++; S.di = 0; } }
+  else { if (S.di > 0) S.di--; else if (S.wi > 0){ S.wi--; S.di = 6; } }
+  render();
+});
+
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") load(false); });
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+
+(async function boot(){
+  S.tab = store.get("werk:tab") || "Fall 2026";
+  S.tabs = [S.tab]; fillTabs();
+  showTab();
+  try {
+    const j = await api({ list: "tabs" });
+    if (j.tabs && j.tabs.length){
+      S.tabs = j.tabs;
+      if (!S.tabs.includes(S.tab)){ S.tab = S.tabs[0]; showTab(); }
+      fillTabs();
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
