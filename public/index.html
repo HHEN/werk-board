@@ -55,11 +55,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px 10px;display:grid;gap:10px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.brand{min-width:0;font-family:var(--display);font-weight:800;font-size:clamp(21px,6vw,28px);letter-spacing:.02em;line-height:1;text-transform:uppercase}
+.brand{min-width:0;font-family:var(--display);font-weight:800;font-size:clamp(18px,5vw,28px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;line-height:1;text-transform:uppercase}
 .brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-top:4px}
-.tools{display:flex;gap:6px;align-items:center}
+.tools{display:flex;gap:6px;align-items:center;flex-shrink:0}
 select,button{font:inherit;color:var(--ink)}
-select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;max-width:116px}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;max-width:104px}
 .icon-btn{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:36px;height:34px;display:grid;place-items:center;cursor:pointer}
 .icon-btn:focus-visible,.day:focus-visible,.wk-btn:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
@@ -105,7 +105,17 @@ main{display:grid;gap:12px;margin-top:6px}
 .score label .st{letter-spacing:0;text-transform:none;font-weight:500;color:var(--green)}
 .score input{width:100%;min-width:0;font:inherit;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
 .score input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
-.plate.s{background:var(--green)}
+.slab.tap{cursor:pointer}
+.slab.open{border-color:var(--accent)}
+.slab-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.slab-row .slab-label{margin:0}
+.score-btn{font:inherit;font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:0;border-radius:999px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.score-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.score-sum{font-size:13px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
+.score-sum:empty,.slab.open .score-sum{display:none}
+.score-sum b{color:var(--ink)}
+.slab .scores{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.score-hint{font-size:12px;color:var(--muted);margin-top:8px}
 .empty,.banner{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px 16px;color:var(--muted);font-size:14px}
 .banner{border-style:solid;border-color:var(--yellow);color:var(--ink)}
 .banner b{display:block;margin-bottom:2px}
@@ -215,7 +225,7 @@ function wodHTML(text, notes){
     if (!notes && i === 0 && FMT_RE.test(ln)) return `<span class="fmt">${e}</span>`;
     if (notes) return e.replace(/^(Echo Bike variation|RPE 5 option|Goal|TC|Strength)(:)/, '<span class="hl">$1$2</span>');
     return e.replace(/(\d+(?:\.\d+)?\/\d+(?:\.\d+)?\s?(?:kg|cal|m)?'?)/g, '<span class="load">$1</span>');
-  }).join("\n");
+  }).join("\n").replace(/<\/span>\n/, "</span>");
 }
 
 function render(){
@@ -249,25 +259,31 @@ function render(){
   let html = S.error ? bannerHTML() : "";
   html += `<div class="dayhead"><h1>${DAY_NAMES[S.di]}</h1><div class="chips">${focus?`<span class="chip focus">${esc(focus)}</span>`:""}${fn?`<span class="chip">${esc(fn)}</span>`:""}${skill?`<span class="chip">${esc(skill)}</span>`:""}</div></div>`;
   if (!A && !B) html += `<div class="empty">Rest day, or nothing programmed for ${DAY_NAMES[S.di]}${date?` ${fmt(date)}`:""}.</div>`;
-  if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false);
-  if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false);
-  if (N) html += slab("n","!", "Notes", N, true);
-  if (A || B) html += scoreSlab(w);
+  if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false, w);
+  if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false, w);
+  if (N) html += slab("n","!", "Notes", N, true, w);
   $("main").innerHTML = html;
   loadScores(w);
   $("foot").textContent = S.updated ? `Updated from the sheet ${new Date(S.updated).toLocaleString("de-DE",{weekday:"short",hour:"2-digit",minute:"2-digit"})}` : "";
 }
-// ---- scores (shared via /api/scores, falls back to this phone only) ----
+// ---- scores per workout (shared via /api/scores, falls back to this phone only) ----
 const PEOPLE = [["pia","Pia"],["henning","Henning"]];
 const weekId = w => `${S.tab}|${w.no}`;
-function scoreSlab(w){
+const openKey = (w, part) => `${weekId(w)}|${S.di}|${part}`;
+S.open = null;
+function scoreSummary(w, part){
+  const sc = S.scores[weekId(w)] || {};
+  const got = PEOPLE.map(([id,name]) => sc[`${S.di}:${part}:${id}`] ? `${name} <b>${esc(sc[`${S.di}:${part}:${id}`])}</b>` : "").filter(Boolean);
+  return got.length ? got.join(" · ") : "";
+}
+function scoreFields(w, part){
   const sc = S.scores[weekId(w)] || {};
   const fields = PEOPLE.map(([id,name]) => {
-    const v = sc[`${S.di}:${id}`] || "";
-    return `<div class="score"><label for="score-${id}">${name}<span class="st" id="st-${id}"></span></label><input id="score-${id}" data-person="${id}" value="${esc(v)}" placeholder="e.g. 5+12, 14:32, 85kg" autocomplete="off" enterkeyhint="done" maxlength="60"></div>`;
+    const v = sc[`${S.di}:${part}:${id}`] || "";
+    return `<div class="score"><label for="score-${part}-${id}">${name}<span class="st" id="st-${part}-${id}"></span></label><input id="score-${part}-${id}" data-part="${part}" data-person="${id}" value="${esc(v)}" placeholder="e.g. 14:32" autocomplete="off" enterkeyhint="done" maxlength="60"></div>`;
   }).join("");
-  const hint = S.scoreMode === "local" ? `<div class="slab-label" style="margin:8px 0 0">Saved on this phone only</div>` : "";
-  return `<section class="slab"><div class="plate s" aria-hidden="true">✓</div><div class="slab-body"><div class="slab-label">Score</div><div class="scores">${fields}</div>${hint}</div></section>`;
+  const hint = S.scoreMode === "local" ? `<div class="score-hint">Saved on this phone only</div>` : "";
+  return `<div class="scores">${fields}</div>${hint}`;
 }
 const scoreLoaded = new Set();
 async function loadScores(w){
@@ -284,29 +300,44 @@ async function loadScores(w){
   if (S.weeks[S.wi] && weekId(S.weeks[S.wi]) === id && !document.activeElement?.matches?.(".score input")) render();
 }
 const saveTimers = {};
-async function saveScore(person, value){
+async function saveScore(part, person, value){
   const w = S.weeks[S.wi]; if (!w) return;
-  const id = weekId(w), day = S.di, st = $("st-"+person);
+  const id = weekId(w), day = S.di, st = $(`st-${part}-${person}`), field = `${day}:${part}:${person}`;
   S.scores[id] = S.scores[id] || {};
-  if (value) S.scores[id][`${day}:${person}`] = value; else delete S.scores[id][`${day}:${person}`];
+  if (value) S.scores[id][field] = value; else delete S.scores[id][field];
   store.set("scores:"+id, S.scores[id]);
+  const sum = document.querySelector(`[data-sum="${part}"]`); if (sum) sum.innerHTML = scoreSummary(w, part);
   if (S.scoreMode === "local"){ if (st) st.textContent = "Saved"; return; }
   try {
-    const r = await fetch("/api/scores", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ week:id, day, person, value }) });
+    const r = await fetch("/api/scores", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ week:id, day, part, person, value }) });
     if (r.status === 501){ S.scoreMode = "local"; if (st) st.textContent = "Saved"; return; }
     if (st) st.textContent = r.ok ? "Saved" : "Not saved";
   } catch (e) { if (st) st.textContent = "Offline, on phone"; }
 }
 $("main").addEventListener("input", e => {
   const inp = e.target.closest(".score input"); if (!inp) return;
-  const p = inp.dataset.person; const st = $("st-"+p); if (st) st.textContent = "…";
-  clearTimeout(saveTimers[p]);
-  saveTimers[p] = setTimeout(() => saveScore(p, inp.value.trim()), 700);
+  const part = inp.dataset.part, p = inp.dataset.person, k = part + p;
+  const st = $(`st-${part}-${p}`); if (st) st.textContent = "…";
+  clearTimeout(saveTimers[k]);
+  saveTimers[k] = setTimeout(() => saveScore(part, p, inp.value.trim()), 700);
 });
 $("main").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches(".score input")) e.target.blur(); });
+$("main").addEventListener("click", e => {
+  if (e.target.closest(".scores")) return;
+  const sl = e.target.closest(".slab[data-part]"); if (!sl) return;
+  if (window.getSelection && String(window.getSelection()).length) return;
+  const w = S.weeks[S.wi]; const k = openKey(w, sl.dataset.part);
+  S.open = S.open === k ? null : k;
+  render();
+  if (S.open){ const inp = document.querySelector(`.slab[data-part="${sl.dataset.part}"] .score input`); if (inp) inp.focus({ preventScroll:false }); }
+});
 
-const slab = (cls, mark, label, text, notes) =>
-  `<section class="slab${notes?" notes":""}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, notes)}</div></div></section>`;
+const slab = (cls, mark, label, text, notes, w) => {
+  if (notes) return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, true)}</div></div></section>`;
+  const open = S.open === openKey(w, cls);
+  const sum = scoreSummary(w, cls);
+  return `<section class="slab tap${open?" open":""}" data-part="${cls}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-row"><div class="slab-label">${label}</div><button class="score-btn" aria-expanded="${open}">${open ? "Done" : (sum ? "Edit score" : "+ Score")}</button></div><div class="wod">${wodHTML(text, false)}</div><div class="score-sum" data-sum="${cls}">${open ? "" : sum}</div>${open ? scoreFields(w, cls) : ""}</div></section>`;
+};
 
 function bannerHTML(){
   const e = S.error; if (!e) return "";

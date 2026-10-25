@@ -1,6 +1,6 @@
 // Shared scores for Pia and Henning, stored in Upstash Redis (Vercel Storage → Upstash).
-// GET  /api/scores?week=Fall%202026%7C8           -> { scores: { "0:pia": "5+12", ... } }
-// POST /api/scores {week, day, person, value}      -> { ok: true }
+// GET  /api/scores?week=Fall%202026%7C8           -> { scores: { "0:b:pia": "5+12", ... } }
+// POST /api/scores {week, day, part, person, value} -> { ok: true }   (part: "a" | "b")
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 const PEOPLE = ["pia", "henning"];
@@ -31,8 +31,8 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
       const b = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
       const day = Number(b.day);
-      if (!b.week || !(day >= 0 && day <= 6) || !PEOPLE.includes(b.person)) return res.status(400).json({ code: "bad_request" });
-      const field = `${day}:${b.person}`;
+      if (!b.week || !(day >= 0 && day <= 6) || !["a", "b"].includes(b.part) || !PEOPLE.includes(b.person)) return res.status(400).json({ code: "bad_request" });
+      const field = `${day}:${b.part}:${b.person}`;
       const value = String(b.value || "").trim().slice(0, 60);
       if (value) await redis(["HSET", weekKey(b.week), field, value]);
       else await redis(["HDEL", weekKey(b.week), field]);
