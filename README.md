@@ -26,3 +26,7 @@ The URL is public. To lock it, turn on Vercel → Settings → Deployment Protec
 Each day has a score field for Pia and one for Henning. To share them between phones, add a store once:
 Vercel → Project → Storage → Create → **Upstash for Redis** (free) → connect it to this project → redeploy.
 `api/scores.js` picks up the injected `KV_REST_API_URL` / `KV_REST_API_TOKEN` (or `UPSTASH_REDIS_REST_*`). Without a store, scores are kept on each phone only.
+
+## 1RMs
+
+Tap **1RM** in the header to enter Pia's and Henning's 1RMs (kg). Any line with a lift and a percentage (e.g. `3 Front Squat 74%`, `Back Squat at 82`, `80-83-90%` under a lift) shows each person's load, rounded to 2.5 kg. Tap a load chip to jump to that lift's 1RM. Stored in the same Upstash store via `api/maxes.js`.

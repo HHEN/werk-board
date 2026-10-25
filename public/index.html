@@ -53,13 +53,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15p
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 .wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 40px}
 
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px 10px;display:grid;gap:10px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.brand{min-width:0;font-family:var(--display);font-weight:800;font-size:clamp(18px,5vw,28px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;line-height:1;text-transform:uppercase}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px 10px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.top{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{min-width:0;font-family:var(--display);font-weight:800;font-size:clamp(17px,4.9vw,28px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;line-height:1;text-transform:uppercase}
 .brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-top:4px}
 .tools{display:flex;gap:6px;align-items:center;flex-shrink:0}
 select,button{font:inherit;color:var(--ink)}
-select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;max-width:104px}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;max-width:96px}
 .icon-btn{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:36px;height:34px;display:grid;place-items:center;cursor:pointer}
 .icon-btn:focus-visible,.day:focus-visible,.wk-btn:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
@@ -129,6 +129,19 @@ main{display:grid;gap:12px;margin-top:6px}
 .sheet ol{margin:0;padding-left:20px;display:grid;gap:10px;font-size:15px}
 .sheet .glyph{display:inline-block;vertical-align:-3px;width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2}
 .sheet button{background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:12px;font:inherit;font-weight:600;cursor:pointer}
+.rm-btn{width:auto;padding:0 8px;font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.03em}
+.pct{display:inline-block;margin-left:8px;vertical-align:1px;font:inherit;font-size:12px;font-weight:500;color:var(--muted);background:var(--accent-soft);border:0;border-radius:6px;padding:1px 7px;cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pct b{color:var(--accent);font-weight:700}
+.pct-set{color:var(--accent);font-weight:600}
+.sheet.rm{max-height:85vh;overflow:auto}
+.rm-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rm-note{font-size:12px;color:var(--muted)}
+.rm-grid{display:grid;grid-template-columns:minmax(0,1fr) 78px 78px;gap:6px 8px;align-items:center}
+.rm-grid .h{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center}
+.rm-grid label{font-size:14px;font-weight:500;min-width:0}
+.rm-grid input{width:100%;font:inherit;font-size:16px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 4px}
+.rm-grid input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.rm-grid input.hit{outline:2px solid var(--green)}
 @media (prefers-reduced-motion:reduce){.spin svg{animation:none}}
 </style>
 </head>
@@ -141,7 +154,8 @@ main{display:grid;gap:12px;margin-top:6px}
       <div class="tools">
         <label for="tabSel" hidden>Cycle</label>
         <select id="tabSel" aria-label="Cycle"></select>
-        <button class="icon-btn" id="refresh" aria-label="Refresh from sheet"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+        <button class="icon-btn rm-btn" id="rmBtn" aria-label="1RMs">1RM</button>
+        <button class="icon-btn" id="refresh" hidden aria-label="Refresh from sheet"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
       </div>
     </div>
     <div class="weekbar">
@@ -156,6 +170,14 @@ main{display:grid;gap:12px;margin-top:6px}
   <div class="foot" id="foot"></div>
 </div>
 
+<div class="sheet-bg" id="rmSheet" hidden>
+  <div class="sheet rm" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+    <div class="rm-head"><h2 id="rmTitle">1RMs</h2><span class="rm-note" id="rmNote">kg · % loads round to 2,5 kg</span></div>
+    <div class="rm-grid" id="rmGrid"></div>
+    <button id="rmClose">Done</button>
+  </div>
+</div>
+
 <div class="sheet-bg" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <h2 id="sheetTitle">Add to Home Screen</h2>
@@ -168,7 +190,7 @@ main{display:grid;gap:12px;margin-top:6px}
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const $ = id => document.getElementById(id);
-const S = { tab:null, tabs:[], weeks:[], wi:0, di:0, updated:null, unsub:null, picked:false, error:null, scores:{}, scoreMode:"shared" };
+const S = { tab:null, tabs:[], weeks:[], wi:0, di:0, updated:null, unsub:null, picked:false, error:null, scores:{}, scoreMode:"shared", maxes:{} };
 
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
@@ -219,13 +241,71 @@ function pickToday(){
 
 const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const FMT_RE = /^(AMRAP|EMOM|E\d|For time|\d+ rounds|\d+ sets|Teams of|Team|Every|On the|For Time|\d+-\d+)/i;
+// ---- 1RM lifts and % → kg ----
+const LIFTS = [
+  ["back-squat","Back Squat"],["front-squat","Front Squat"],["deadlift","Deadlift"],
+  ["press","Strict Press"],["push-press","Push Press"],["jerk","Push / Split Jerk"],
+  ["power-clean","Power Clean"],["squat-clean","Squat Clean"],["clean-jerk","Clean & Jerk"],
+  ["power-snatch","Power Snatch"],["squat-snatch","Squat Snatch"],["thruster","Thruster"],
+  ["ohs","Overhead Squat"],["bench","Bench Press"]
+];
+const LIFT_NAME = Object.fromEntries(LIFTS);
+const LIFT_RES = [
+  [/squat\s+clean/i,"squat-clean"],[/squat\s+snatch/i,"squat-snatch"],
+  [/clean\s*(?:&|and|\+)\s*jerk/i,"clean-jerk"],
+  [/power\s+clean/i,"power-clean"],[/power\s+snatch/i,"power-snatch"],
+  [/push\s+press/i,"push-press"],[/(?:push|split)\s+jerk|\bjerk\b/i,"jerk"],
+  [/bench\s+press/i,"bench"],[/front\s+squat/i,"front-squat"],[/\bFS\b/,"front-squat"],
+  [/overhead\s+squat/i,"ohs"],[/\bOHS\b/,"ohs"],[/thruster/i,"thruster"],
+  [/deadlift|\bDL\b/i,"deadlift"],
+  [/(?:back|pause[d]?|speed|tempo)\s+(?:back\s+)?squat|^\s*\d*\s*squat\b/i,"back-squat"],
+  [/\bclean\b/i,"power-clean"],[/\bsnatch\b/i,"squat-snatch"],
+  [/\bpress\b/i,"press"]
+];
+function liftIn(line){
+  if (/\b(DB|dumbbell|KB|kettlebell|goblet|air squat|wall ?ball|sumo deadlift high pull)\b/i.test(line)) return null;
+  const of = line.match(/of (?:your|the)\s+([a-z &]+?)(?:$|[,.)])/i);
+  const src = of ? of[1] : line;
+  for (const [re, id] of LIFT_RES) if (re.test(src)) return id;
+  return null;
+}
+function pctsIn(line){
+  let m = line.match(/(\d{2,3}(?:-\d{2,3})+)\s?%/);
+  if (m) return m[1].split("-").map(Number);
+  const out = [...line.matchAll(/(\d{2,3}(?:[.,]\d)?)\s?%/g)].map(x => parseFloat(x[1].replace(",", ".")));
+  if (out.length) return out;
+  m = line.match(/\bat\s+(\d{2,3})(?!\s*(?:kg|m\b|cal|\/))/i);
+  return m ? [Number(m[1])] : [];
+}
+const roundKg = kg => Math.round(kg / 2.5) * 2.5;
+const fmtKg = kg => (Number.isInteger(kg) ? String(kg) : kg.toFixed(1).replace(".", ","));
+function pctChip(lift, pcts){
+  const parts = PEOPLE.map(([id,name]) => {
+    const max = parseFloat(S.maxes[`${id}:${lift}`]);
+    if (!(max > 0)) return "";
+    return `${name[0]} <b>${pcts.map(p => fmtKg(roundKg(max * p / 100))).join("/")}</b>`;
+  }).filter(Boolean);
+  if (!parts.length) return `<button class="pct pct-set" data-lift="${lift}">+ 1RM</button>`;
+  return `<button class="pct" data-lift="${lift}" aria-label="${esc(LIFT_NAME[lift])} loads">${parts.join(" · ")}</button>`;
+}
 function wodHTML(text, notes){
-  return text.split("\n").map((ln, i) => {
+  if (notes) return text.split("\n").map(ln => esc(ln).replace(/^(Echo Bike variation|RPE 5 option|Goal|TC|Strength)(:)/, '<span class="hl">$1$2</span>')).join("\n");
+  let ctx = null; const shown = new Set();
+  const lines = text.split("\n").map((ln, i) => {
     const e = esc(ln);
-    if (!notes && i === 0 && FMT_RE.test(ln)) return `<span class="fmt">${e}</span>`;
-    if (notes) return e.replace(/^(Echo Bike variation|RPE 5 option|Goal|TC|Strength)(:)/, '<span class="hl">$1$2</span>');
-    return e.replace(/(\d+(?:\.\d+)?\/\d+(?:\.\d+)?\s?(?:kg|cal|m)?'?)/g, '<span class="load">$1</span>');
-  }).join("\n").replace(/<\/span>\n/, "</span>");
+    const lift = liftIn(ln); if (lift) ctx = lift;
+    const pcts = pctsIn(ln);
+    let chip = "";
+    if (pcts.length && (lift || ctx) && !(pcts.length === 1 && pcts[0] > 100)) {
+      const l = lift || ctx;
+      if (S.maxes && !(shown.has(l) && !Object.keys(S.maxes).some(k => k.endsWith(":"+l)))) chip = pctChip(l, pcts);
+      shown.add(l);
+    }
+    if (i === 0 && FMT_RE.test(ln)) return { fmt:true, html:`<span class="fmt">${e}</span>${chip}` };
+    return { html: e.replace(/(\d+(?:\.\d+)?\/\d+(?:\.\d+)?\s?(?:kg|cal|m)?'?)/g, '<span class="load">$1</span>') + chip };
+  });
+  if (lines[0] && lines[0].fmt) return lines[0].html + lines.slice(1).map(l => l.html).join("\n");
+  return lines.map(l => l.html).join("\n");
 }
 
 function render(){
@@ -331,6 +411,49 @@ $("main").addEventListener("click", e => {
   render();
   if (S.open){ const inp = document.querySelector(`.slab[data-part="${sl.dataset.part}"] .score input`); if (inp) inp.focus({ preventScroll:false }); }
 });
+
+// ---- 1RM store (shared via /api/maxes, falls back to this phone) ----
+async function loadMaxes(){
+  S.maxes = store.get("maxes") || {};
+  try {
+    const r = await fetch("/api/maxes", { cache: "no-store" });
+    if (r.ok){ const j = await r.json(); S.maxes = Object.assign({}, S.maxes, j.maxes); store.set("maxes", S.maxes); }
+  } catch (e) {}
+  if (!document.activeElement?.matches?.("input")) render();
+}
+function openMaxes(focusLift){
+  $("rmGrid").innerHTML = `<span></span>` + PEOPLE.map(([,n]) => `<span class="h">${n}</span>`).join("") +
+    LIFTS.map(([id,name]) => `<label for="rm-${PEOPLE[0][0]}-${id}">${name}</label>` + PEOPLE.map(([p]) =>
+      `<input id="rm-${p}-${id}" data-p="${p}" data-lift="${id}" inputmode="decimal" autocomplete="off" maxlength="6" value="${esc(S.maxes[`${p}:${id}`] || "")}" aria-label="${name} 1RM">`).join("")).join("");
+  $("rmSheet").hidden = false;
+  const f = focusLift && $(`rm-${PEOPLE[0][0]}-${focusLift}`);
+  if (f){ f.scrollIntoView({ block:"center" }); f.focus(); } else $("rmClose").focus();
+}
+const rmTimers = {};
+async function saveMax(p, lift, value, inp){
+  value = value.replace(",", ".").trim();
+  if (value && !/^\d{1,3}(\.\d{1,2})?$/.test(value)) return;
+  if (value) S.maxes[`${p}:${lift}`] = value; else delete S.maxes[`${p}:${lift}`];
+  store.set("maxes", S.maxes);
+  try {
+    const r = await fetch("/api/maxes", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ person:p, lift, value }) });
+    if (r.ok || r.status === 501){ inp.classList.add("hit"); setTimeout(() => inp.classList.remove("hit"), 700); }
+  } catch (e) {}
+}
+$("rmGrid").addEventListener("input", e => {
+  const inp = e.target; if (!inp.dataset.lift) return;
+  const k = inp.id; clearTimeout(rmTimers[k]);
+  rmTimers[k] = setTimeout(() => saveMax(inp.dataset.p, inp.dataset.lift, inp.value, inp), 600);
+});
+const closeMaxes = () => { $("rmSheet").hidden = true; render(); };
+$("rmBtn").onclick = () => openMaxes();
+$("rmClose").onclick = closeMaxes;
+$("rmSheet").addEventListener("click", e => { if (e.target === $("rmSheet")) closeMaxes(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("rmSheet").hidden) closeMaxes(); });
+$("main").addEventListener("click", e => {
+  const b = e.target.closest(".pct"); if (!b) return;
+  e.stopPropagation(); openMaxes(b.dataset.lift);
+}, true);
 
 const slab = (cls, mark, label, text, notes, w) => {
   if (notes) return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, true)}</div></div></section>`;
@@ -461,6 +584,7 @@ if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").cat
   S.tab = store.get("werk:tab") || "Fall 2026";
   S.tabs = [S.tab]; fillTabs();
   showTab();
+  loadMaxes();
   try {
     const j = await api({ list: "tabs" });
     if (j.tabs && j.tabs.length){
