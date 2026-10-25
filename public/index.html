@@ -5,10 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Werk">
+<meta name="apple-mobile-web-app-title" content="Heinrich">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icon-180.png">
-<title>Werk Board</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<title>Heinrich Programming</title>
+<meta name="description" content="Weekly class workouts.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Heinrich Programming">
+<meta property="og:title" content="Heinrich Programming">
+<meta property="og:description" content="Weekly class workouts.">
+<meta property="og:url" content="__SITE__/">
+<meta property="og:image" content="__SITE__/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Heinrich Programming">
+<meta name="twitter:image" content="__SITE__/og.png">
 
 <style>
 *,*::before,*::after{box-sizing:border-box}
@@ -107,7 +120,7 @@ main{display:grid;gap:12px;margin-top:6px}
 <div class="wrap">
   <header>
     <div class="top">
-      <div class="brand">Werk Board<small id="cycleLabel">Class programming</small></div>
+      <div class="brand">Heinrich<small id="cycleLabel">Programming</small></div>
       <div class="tools">
         <label for="tabSel" hidden>Cycle</label>
         <select id="tabSel" aria-label="Cycle"></select>
@@ -116,12 +129,12 @@ main{display:grid;gap:12px;margin-top:6px}
     </div>
     <div class="weekbar">
       <button class="wk-btn" id="prevWk" aria-label="Previous week">‹</button>
-      <div class="wk-mid"><div class="wk-title" id="wkTitle">Week –</div><div class="wk-sub" id="wkSub">Loading the sheet…</div></div>
+      <div class="wk-mid"><div class="wk-title" id="wkTitle">Week –</div><div class="wk-sub" id="wkSub">Loading…</div></div>
       <button class="wk-btn" id="nextWk" aria-label="Next week">›</button>
     </div>
     <div class="days" id="days" role="tablist" aria-label="Days"></div>
   </header>
-  <main id="main"><div class="empty">Loading this week's workouts from WEEKLY OVERVIEW PROGRAMMING…</div></main>
+  <main id="main"><div class="empty">Loading this week's workouts…</div></main>
   <button class="install" id="installBtn" hidden><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 8v6M9 11h6"/></svg>Add to Home Screen</button>
   <div class="foot" id="foot"></div>
 </div>
@@ -202,7 +215,7 @@ function render(){
   const w = S.weeks[S.wi];
   $("prevWk").disabled = S.wi <= 0;
   $("nextWk").disabled = S.wi >= S.weeks.length - 1;
-  $("cycleLabel").textContent = S.tab ? S.tab : "Class programming";
+  $("cycleLabel").textContent = S.tab ? "Programming · " + S.tab : "Programming";
   if (!w){
     $("wkTitle").textContent = "No weeks yet";
     $("wkSub").textContent = S.error ? "" : "This cycle has no programmed weeks.";
@@ -340,7 +353,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
     if (ios) return [
       iosOther ? `Tap the share button ${share} in the address bar.` : `Tap the share button ${share} at the bottom of Safari.`,
       `Scroll down and tap <b>Add to Home Screen</b> ${plus}.`,
-      `Tap <b>Add</b>. Werk Board now opens from its own icon.`
+      `Tap <b>Add</b>. Heinrich Programming now opens from its own icon.`
     ];
     return [`Open your browser menu (⋮).`, `Tap <b>Install app</b> or <b>Add to Home screen</b>.`];
   }

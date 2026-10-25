@@ -1,4 +1,4 @@
-# Werk Board
+# Heinrich Programming (werk-board)
 
 Phone view of the class workouts from the Google Sheet "WEEKLY OVERVIEW PROGRAMMING".
 
