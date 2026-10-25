@@ -1,4 +1,4 @@
-# Heinrich Programming (werk-board)
+# CheezyWednesday Programming (werk-board)
 
 Phone view of the class workouts from the Google Sheet "WEEKLY OVERVIEW PROGRAMMING".
 
@@ -20,3 +20,9 @@ After the week is written to the sheet, ask Claude to update the Werk Board. Cla
 Open the Vercel URL in Safari → Share → **Add to Home Screen**.
 
 The URL is public. To lock it, turn on Vercel → Settings → Deployment Protection.
+
+## Scores (Pia and Henning)
+
+Each day has a score field for Pia and one for Henning. To share them between phones, add a store once:
+Vercel → Project → Storage → Create → **Upstash for Redis** (free) → connect it to this project → redeploy.
+`api/scores.js` picks up the injected `KV_REST_API_URL` / `KV_REST_API_TOKEN` (or `UPSTASH_REDIS_REST_*`). Without a store, scores are kept on each phone only.

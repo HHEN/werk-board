@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14181d">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Heinrich">
+<meta name="apple-mobile-web-app-title" content="CheezyWed">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="icon" type="image/png" href="/favicon.png">
-<title>Heinrich Programming</title>
+<title>CheezyWednesday Programming</title>
 <meta name="description" content="Weekly class workouts.">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Heinrich Programming">
-<meta property="og:title" content="Heinrich Programming">
+<meta property="og:site_name" content="CheezyWednesday Programming">
+<meta property="og:title" content="CheezyWednesday Programming">
 <meta property="og:description" content="Weekly class workouts.">
 <meta property="og:url" content="__SITE__/">
 <meta property="og:image" content="__SITE__/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Heinrich Programming">
+<meta name="twitter:title" content="CheezyWednesday Programming">
 <meta name="twitter:image" content="__SITE__/og.png">
 
 <style>
@@ -55,11 +55,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px 10px;display:grid;gap:10px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.brand{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:.02em;line-height:1;text-transform:uppercase}
+.brand{min-width:0;font-family:var(--display);font-weight:800;font-size:clamp(21px,6vw,28px);letter-spacing:.02em;line-height:1;text-transform:uppercase}
 .brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;margin-top:4px}
 .tools{display:flex;gap:6px;align-items:center}
 select,button{font:inherit;color:var(--ink)}
-select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;max-width:140px}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;max-width:116px}
 .icon-btn{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:36px;height:34px;display:grid;place-items:center;cursor:pointer}
 .icon-btn:focus-visible,.day:focus-visible,.wk-btn:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
@@ -99,6 +99,13 @@ main{display:grid;gap:12px;margin-top:6px}
 .notes .wod{font-size:14px;color:var(--ink)}
 .notes .wod .hl{color:var(--green);font-weight:600}
 
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.score{display:grid;gap:4px;min-width:0}
+.score label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.score label .st{letter-spacing:0;text-transform:none;font-weight:500;color:var(--green)}
+.score input{width:100%;min-width:0;font:inherit;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.score input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.plate.s{background:var(--green)}
 .empty,.banner{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px 16px;color:var(--muted);font-size:14px}
 .banner{border-style:solid;border-color:var(--yellow);color:var(--ink)}
 .banner b{display:block;margin-bottom:2px}
@@ -120,7 +127,7 @@ main{display:grid;gap:12px;margin-top:6px}
 <div class="wrap">
   <header>
     <div class="top">
-      <div class="brand">Heinrich<small id="cycleLabel">Programming</small></div>
+      <div class="brand">CheezyWednesday<small id="cycleLabel">Programming</small></div>
       <div class="tools">
         <label for="tabSel" hidden>Cycle</label>
         <select id="tabSel" aria-label="Cycle"></select>
@@ -151,7 +158,7 @@ main{display:grid;gap:12px;margin-top:6px}
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const $ = id => document.getElementById(id);
-const S = { tab:null, tabs:[], weeks:[], wi:0, di:0, updated:null, unsub:null, picked:false, error:null };
+const S = { tab:null, tabs:[], weeks:[], wi:0, di:0, updated:null, unsub:null, picked:false, error:null, scores:{}, scoreMode:"shared" };
 
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
@@ -245,9 +252,59 @@ function render(){
   if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false);
   if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false);
   if (N) html += slab("n","!", "Notes", N, true);
+  if (A || B) html += scoreSlab(w);
   $("main").innerHTML = html;
+  loadScores(w);
   $("foot").textContent = S.updated ? `Updated from the sheet ${new Date(S.updated).toLocaleString("de-DE",{weekday:"short",hour:"2-digit",minute:"2-digit"})}` : "";
 }
+// ---- scores (shared via /api/scores, falls back to this phone only) ----
+const PEOPLE = [["pia","Pia"],["henning","Henning"]];
+const weekId = w => `${S.tab}|${w.no}`;
+function scoreSlab(w){
+  const sc = S.scores[weekId(w)] || {};
+  const fields = PEOPLE.map(([id,name]) => {
+    const v = sc[`${S.di}:${id}`] || "";
+    return `<div class="score"><label for="score-${id}">${name}<span class="st" id="st-${id}"></span></label><input id="score-${id}" data-person="${id}" value="${esc(v)}" placeholder="e.g. 5+12, 14:32, 85kg" autocomplete="off" enterkeyhint="done" maxlength="60"></div>`;
+  }).join("");
+  const hint = S.scoreMode === "local" ? `<div class="slab-label" style="margin:8px 0 0">Saved on this phone only</div>` : "";
+  return `<section class="slab"><div class="plate s" aria-hidden="true">✓</div><div class="slab-body"><div class="slab-label">Score</div><div class="scores">${fields}</div>${hint}</div></section>`;
+}
+const scoreLoaded = new Set();
+async function loadScores(w){
+  const id = weekId(w);
+  if (scoreLoaded.has(id)) return;
+  scoreLoaded.add(id);
+  const local = store.get("scores:"+id) || {};
+  S.scores[id] = Object.assign({}, local, S.scores[id] || {});
+  try {
+    const r = await fetch("/api/scores?" + new URLSearchParams({ week: id }), { cache: "no-store" });
+    if (r.status === 501){ S.scoreMode = "local"; }
+    else if (r.ok){ const j = await r.json(); S.scores[id] = Object.assign({}, local, j.scores); store.set("scores:"+id, S.scores[id]); }
+  } catch (e) {}
+  if (S.weeks[S.wi] && weekId(S.weeks[S.wi]) === id && !document.activeElement?.matches?.(".score input")) render();
+}
+const saveTimers = {};
+async function saveScore(person, value){
+  const w = S.weeks[S.wi]; if (!w) return;
+  const id = weekId(w), day = S.di, st = $("st-"+person);
+  S.scores[id] = S.scores[id] || {};
+  if (value) S.scores[id][`${day}:${person}`] = value; else delete S.scores[id][`${day}:${person}`];
+  store.set("scores:"+id, S.scores[id]);
+  if (S.scoreMode === "local"){ if (st) st.textContent = "Saved"; return; }
+  try {
+    const r = await fetch("/api/scores", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ week:id, day, person, value }) });
+    if (r.status === 501){ S.scoreMode = "local"; if (st) st.textContent = "Saved"; return; }
+    if (st) st.textContent = r.ok ? "Saved" : "Not saved";
+  } catch (e) { if (st) st.textContent = "Offline, on phone"; }
+}
+$("main").addEventListener("input", e => {
+  const inp = e.target.closest(".score input"); if (!inp) return;
+  const p = inp.dataset.person; const st = $("st-"+p); if (st) st.textContent = "…";
+  clearTimeout(saveTimers[p]);
+  saveTimers[p] = setTimeout(() => saveScore(p, inp.value.trim()), 700);
+});
+$("main").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches(".score input")) e.target.blur(); });
+
 const slab = (cls, mark, label, text, notes) =>
   `<section class="slab${notes?" notes":""}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, notes)}</div></div></section>`;
 
@@ -353,7 +410,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
     if (ios) return [
       iosOther ? `Tap the share button ${share} in the address bar.` : `Tap the share button ${share} at the bottom of Safari.`,
       `Scroll down and tap <b>Add to Home Screen</b> ${plus}.`,
-      `Tap <b>Add</b>. Heinrich Programming now opens from its own icon.`
+      `Tap <b>Add</b>. CheezyWednesday Programming now opens from its own icon.`
     ];
     return [`Open your browser menu (⋮).`, `Tap <b>Install app</b> or <b>Add to Home screen</b>.`];
   }
