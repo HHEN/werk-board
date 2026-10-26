@@ -340,7 +340,7 @@ function render(){
   let html = S.error ? bannerHTML() : "";
   html += `<div class="dayhead"><h1>${DAY_NAMES[S.di]}</h1><div class="chips">${focus?`<span class="chip focus">${esc(focus)}</span>`:""}${fn?`<span class="chip">${esc(fn)}</span>`:""}${skill?`<span class="chip">${esc(skill)}</span>`:""}</div></div>`;
   if (!A && !B) html += `<div class="empty">Rest day, or nothing programmed for ${DAY_NAMES[S.di]}${date?` ${fmt(date)}`:""}.</div>`;
-  const WU = g("warm up");
+  const WU = ((WARMUPS[S.tab]||{})[w.no]||[])[S.di] || "";
   if (WU && (A || B)) html += warmSlab(WU);
   if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false, w);
   if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false, w);
@@ -493,7 +493,8 @@ function applyValues(values, storedAt){
   render();
 }
 
-let DATA = null;
+let DATA = null, WARMUPS = {};
+fetch("/warmups.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { WARMUPS = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 async function getData(fresh){
   if (DATA && !fresh) return DATA;
   let r;

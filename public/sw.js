@@ -1,6 +1,6 @@
 // Network first, cached copy when offline (so the board still opens in the gym).
-const CACHE = "werk-board-v7";
-self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/manifest.webmanifest", "/icon-192.png", "/data.json"]))); });
+const CACHE = "werk-board-v8";
+self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/manifest.webmanifest", "/icon-192.png", "/data.json", "/warmups.json"]))); });
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
