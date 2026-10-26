@@ -500,9 +500,16 @@ function applyValues(values, storedAt){
 let DATA = null, WARMUPS = {}, PICS = {};
 fetch("/img/days.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { PICS = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 const WD_KEYS = ["mon","tue","wed","thu","fri","sat","sun"];
+// Random picture per day: same for everyone on that date, no repeats within a week (while the pool has 7+).
+function seeded(seed){ let x = seed >>> 0 || 1; return () => { x ^= x << 13; x >>>= 0; x ^= x >> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; }; }
 function dayPic(date){
-  const iso = date ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}` : null;
-  return (iso && PICS.date && PICS.date[iso]) || (PICS.weekday && PICS.weekday[WD_KEYS[S.di]]) || null;
+  const pool = Array.isArray(PICS.pool) ? PICS.pool : [];
+  if (!pool.length || !date) return null;
+  const monday = addDays(date, -S.di);
+  const seed = monday.getFullYear() * 10000 + (monday.getMonth() + 1) * 100 + monday.getDate();
+  const rnd = seeded(seed), order = pool.slice();
+  for (let i = order.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  return order[S.di % order.length];
 }
 fetch("/warmups.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { WARMUPS = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 async function getData(fresh){
