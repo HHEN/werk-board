@@ -1,3 +1,16 @@
 {
- "pool": []
+ "pool": [
+  "/img/days/01.jpg",
+  "/img/days/02.jpg",
+  "/img/days/03.jpg",
+  "/img/days/04.jpg",
+  "/img/days/05.jpg",
+  "/img/days/06.jpg",
+  "/img/days/07.jpg",
+  "/img/days/08.jpg",
+  "/img/days/09.jpg",
+  "/img/days/10.jpg",
+  "/img/days/11.jpg",
+  "/img/days/12.jpg"
+ ]
 }
