@@ -90,6 +90,8 @@ main{display:grid;gap:12px;margin-top:6px}
 
 .slab{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 16px;display:grid;grid-template-columns:auto 1fr;gap:12px;min-width:0}
 .plate{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:18px;color:#fff;box-shadow:inset 0 0 0 4px rgba(255,255,255,.18)}
+.daypic{border-radius:12px;overflow:hidden;background:var(--line);aspect-ratio:16/9;max-width:100%}
+.daypic img{display:block;width:100%;height:100%;object-fit:cover}
 .plate.w{background:var(--muted)}.slab.warm .wod{font-size:15px}
 .plate.a{background:var(--blue)}.plate.b{background:var(--red)}.plate.n{background:var(--yellow)}
 .slab-body{min-width:0}
@@ -338,6 +340,8 @@ function render(){
   const sunday = S.di === 6;
 
   let html = S.error ? bannerHTML() : "";
+  const pic = dayPic(date);
+  if (pic) html += `<div class="daypic"><img src="${esc(pic)}" alt="" onerror="this.parentNode.remove()"></div>`;
   html += `<div class="dayhead"><h1>${DAY_NAMES[S.di]}</h1><div class="chips">${focus?`<span class="chip focus">${esc(focus)}</span>`:""}${fn?`<span class="chip">${esc(fn)}</span>`:""}${skill?`<span class="chip">${esc(skill)}</span>`:""}</div></div>`;
   if (!A && !B) html += `<div class="empty">Rest day, or nothing programmed for ${DAY_NAMES[S.di]}${date?` ${fmt(date)}`:""}.</div>`;
   const WU = ((WARMUPS[S.tab]||{})[w.no]||[])[S.di] || "";
@@ -493,7 +497,13 @@ function applyValues(values, storedAt){
   render();
 }
 
-let DATA = null, WARMUPS = {};
+let DATA = null, WARMUPS = {}, PICS = {};
+fetch("/img/days.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { PICS = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
+const WD_KEYS = ["mon","tue","wed","thu","fri","sat","sun"];
+function dayPic(date){
+  const iso = date ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}` : null;
+  return (iso && PICS.date && PICS.date[iso]) || (PICS.weekday && PICS.weekday[WD_KEYS[S.di]]) || null;
+}
 fetch("/warmups.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { WARMUPS = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 async function getData(fresh){
   if (DATA && !fresh) return DATA;

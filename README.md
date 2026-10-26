@@ -9,6 +9,7 @@ The app is fully static. The workouts live in `public/data.json`, which Claude r
 - `public/index.html` the board (week bar, day strip, WOD A / WOD B / Notes)
 - `public/warmups.json` 10-min warm-ups per day, app only (not in the sheet): `{ "Fall 2026": { "8": [Mon..Sun] } }`
 - `public/data.json` `{ "updated": "...", "tabs": { "Fall 2026": [[...rows A–H...]] } }`, the raw cell values of each cycle tab
+- `public/img/days.json` picture above each day: `{ "weekday": { "mon": "/img/days/mon.jpg" }, "date": { "2026-11-02": "/img/days/…" } }` (a date overrides the weekday)
 - `public/sw.js` keeps the last loaded copy for when the gym has no signal
 - `vercel.json` serves `public/` as is, no build step
 
