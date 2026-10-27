@@ -37,17 +37,18 @@ body{margin:0;-webkit-text-size-adjust:100%}
   --bg:#eceef1; --surface:#ffffff; --ink:#14181d; --muted:#5a6370; --line:#d3d8df;
   --blue:#1f4fa8; --red:#c0392b; --yellow:#b88a00; --green:#2e7a48;
   --accent:var(--blue); --accent-soft:#dfe7f5; --on-accent:#ffffff;
+  --pia:#d6338a; --henning:#2563d9;
   --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
   --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#101317; --surface:#181c22; --ink:#e9ecf0; --muted:#97a1ad; --line:#2a3039;
   --blue:#5b8de6; --red:#e8695c; --yellow:#e2b62e; --green:#5bb47c;
-  --accent-soft:#1d2a40; --on-accent:#0d1117; color-scheme:dark}}
+  --accent-soft:#1d2a40; --on-accent:#0d1117; --pia:#f272b4; --henning:#6b9cf2; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#101317; --surface:#181c22; --ink:#e9ecf0; --muted:#97a1ad; --line:#2a3039;
   --blue:#5b8de6; --red:#e8695c; --yellow:#e2b62e; --green:#5bb47c;
-  --accent-soft:#1d2a40; --on-accent:#0d1117; color-scheme:dark}
+  --accent-soft:#1d2a40; --on-accent:#0d1117; --pia:#f272b4; --henning:#6b9cf2; color-scheme:dark}
 
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
@@ -74,11 +75,15 @@ select{background:var(--surface);border:1px solid var(--line);border-radius:8px;
 .wk-focus{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 
 .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.day{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 0 6px;cursor:pointer;display:grid;gap:1px;justify-items:center}
+.day{background-color:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 0 6px;cursor:pointer;display:grid;gap:1px;justify-items:center}
 .day b{font-family:var(--display);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.04em}
 .day span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .day.today{border-color:var(--accent)}
-.day[aria-selected="true"]{background:var(--ink);border-color:var(--ink)}
+.day[aria-selected="true"]{background-color:var(--ink);border-color:var(--ink)}
+.day.s-pia{background-image:linear-gradient(135deg,color-mix(in srgb,var(--pia) 55%,transparent) 50%,transparent 50%)}
+.day.s-henning{background-image:linear-gradient(315deg,color-mix(in srgb,var(--henning) 55%,transparent) 50%,transparent 50%)}
+.day.s-both{background-image:linear-gradient(135deg,color-mix(in srgb,var(--pia) 55%,transparent) 50%,color-mix(in srgb,var(--henning) 55%,transparent) 50%)}
+.p-pia{color:var(--pia)!important}.p-henning{color:var(--henning)!important}
 .day[aria-selected="true"] b,.day[aria-selected="true"] span{color:var(--bg)}
 
 main{display:grid;gap:12px;margin-top:6px}
@@ -286,7 +291,7 @@ function pctChip(lift, pcts){
   const parts = PEOPLE.map(([id,name]) => {
     const max = parseFloat(S.maxes[`${id}:${lift}`]);
     if (!(max > 0)) return "";
-    return `${name[0]} <b>${pcts.map(p => fmtKg(roundKg(max * p / 100))).join("/")}</b>`;
+    return `<span class="p-${id}">${name[0]}</span> <b>${pcts.map(p => fmtKg(roundKg(max * p / 100))).join("/")}</b>`;
   }).filter(Boolean);
   if (!parts.length) return `<button class="pct pct-set" data-lift="${lift}">+ 1RM</button>`;
   return `<button class="pct" data-lift="${lift}" aria-label="${esc(LIFT_NAME[lift])} loads">${parts.join(" · ")}</button>`;
@@ -330,7 +335,10 @@ function render(){
   const today = new Date(); today.setHours(0,0,0,0);
   $("days").innerHTML = DAYS.map((d,i) => {
     const date = w.start ? addDays(w.start,i) : null;
-    return `<button class="day${sameDay(date,today)?" today":""}" role="tab" aria-selected="${i===S.di}" data-i="${i}"><b>${d}</b><span>${date?date.getDate():""}</span></button>`;
+    const done = dayScored(w, i);
+    const sc = done.pia && done.henning ? " s-both" : done.pia ? " s-pia" : done.henning ? " s-henning" : "";
+    const who = [done.pia && "Pia", done.henning && "Henning"].filter(Boolean).join(" and ");
+    return `<button class="day${sameDay(date,today)?" today":""}${sc}" role="tab" aria-selected="${i===S.di}" data-i="${i}"${who ? ` aria-label="${DAY_NAMES[i]}, scored by ${who}"` : ""}><b>${d}</b><span>${date?date.getDate():""}</span></button>`;
   }).join("");
 
   const g = k => (w.rows[k]||[])[S.di] || "";
@@ -355,19 +363,25 @@ function render(){
 }
 // ---- scores per workout (shared via /api/scores, falls back to this phone only) ----
 const PEOPLE = [["pia","Pia"],["henning","Henning"]];
+function dayScored(w, day){
+  const sc = S.scores[weekId(w)] || {};
+  const out = {};
+  for (const [id] of PEOPLE) out[id] = ["a","b"].some(part => sc[`${day}:${part}:${id}`]);
+  return out;
+}
 const weekId = w => `${S.tab}|${w.no}`;
 const openKey = (w, part) => `${weekId(w)}|${S.di}|${part}`;
 S.open = null;
 function scoreSummary(w, part){
   const sc = S.scores[weekId(w)] || {};
-  const got = PEOPLE.map(([id,name]) => sc[`${S.di}:${part}:${id}`] ? `${name} <b>${esc(sc[`${S.di}:${part}:${id}`])}</b>` : "").filter(Boolean);
+  const got = PEOPLE.map(([id,name]) => sc[`${S.di}:${part}:${id}`] ? `<span class="p-${id}">${name}</span> <b>${esc(sc[`${S.di}:${part}:${id}`])}</b>` : "").filter(Boolean);
   return got.length ? got.join(" · ") : "";
 }
 function scoreFields(w, part){
   const sc = S.scores[weekId(w)] || {};
   const fields = PEOPLE.map(([id,name]) => {
     const v = sc[`${S.di}:${part}:${id}`] || "";
-    return `<div class="score"><label for="score-${part}-${id}">${name}<span class="st" id="st-${part}-${id}"></span></label><input id="score-${part}-${id}" data-part="${part}" data-person="${id}" value="${esc(v)}" placeholder="e.g. 14:32" autocomplete="off" enterkeyhint="done" maxlength="60"></div>`;
+    return `<div class="score"><label for="score-${part}-${id}"><span class="p-${id}">${name}</span><span class="st" id="st-${part}-${id}"></span></label><input id="score-${part}-${id}" data-part="${part}" data-person="${id}" value="${esc(v)}" placeholder="e.g. 14:32" autocomplete="off" enterkeyhint="done" maxlength="60"></div>`;
   }).join("");
   const hint = S.scoreMode === "local" ? `<div class="score-hint">Saved on this phone only</div>` : "";
   return `<div class="scores">${fields}</div>${hint}`;
@@ -394,6 +408,12 @@ async function saveScore(part, person, value){
   if (value) S.scores[id][field] = value; else delete S.scores[id][field];
   store.set("scores:"+id, S.scores[id]);
   const sum = document.querySelector(`[data-sum="${part}"]`); if (sum) sum.innerHTML = scoreSummary(w, part);
+  document.querySelectorAll(".day").forEach(b => {
+    const d = dayScored(w, +b.dataset.i);
+    b.classList.toggle("s-both", d.pia && d.henning);
+    b.classList.toggle("s-pia", d.pia && !d.henning);
+    b.classList.toggle("s-henning", d.henning && !d.pia);
+  });
   if (S.scoreMode === "local"){ if (st) st.textContent = "Saved"; return; }
   try {
     const r = await fetch("/api/scores", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ week:id, day, part, person, value }) });
@@ -429,7 +449,7 @@ async function loadMaxes(){
   if (!document.activeElement?.matches?.("input")) render();
 }
 function openMaxes(focusLift){
-  $("rmGrid").innerHTML = `<span></span>` + PEOPLE.map(([,n]) => `<span class="h">${n}</span>`).join("") +
+  $("rmGrid").innerHTML = `<span></span>` + PEOPLE.map(([id,n]) => `<span class="h p-${id}">${n}</span>`).join("") +
     LIFTS.map(([id,name]) => `<label for="rm-${PEOPLE[0][0]}-${id}">${name}</label>` + PEOPLE.map(([p]) =>
       `<input id="rm-${p}-${id}" data-p="${p}" data-lift="${id}" inputmode="decimal" autocomplete="off" maxlength="6" value="${esc(S.maxes[`${p}:${id}`] || "")}" aria-label="${name} 1RM">`).join("")).join("");
   $("rmSheet").hidden = false;
