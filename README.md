@@ -39,4 +39,4 @@ Every Sunday shows a "Feedback for Claude" box: one note per week, autosaved via
 
 ## Video links (explosive days)
 
-On days whose focus is Expl / Oly / Plyo, explosive movements in WOD A get a "▶ Video" link. By default it opens a YouTube search for "<movement> technique". To use a specific video, add it to `public/videos.json`, e.g. `{ "Depth Drop": "https://www.youtube.com/watch?v=..." }` (keys are the movement names in `EXPLOSIVE` in index.html).
+On explosive days (focus Expl / Plyo, the B-week Fridays), plyo movements in WOD A get a "▶ Video" link. By default it opens a YouTube search for "<movement> technique". To use a specific video, add it to `public/videos.json`, e.g. `{ "Depth Drop": "https://www.youtube.com/watch?v=..." }` (keys are the movement names in `EXPLOSIVE` in index.html).

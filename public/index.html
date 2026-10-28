@@ -314,14 +314,11 @@ const EXPLOSIVE = [
   [/reactive\s+split\s+jumps?|split\s+jumps?/i,"Split Jump"],[/tuck\s+jumps?/i,"Tuck Jump"],
   [/single\s+leg\s+(?:side\s+to\s+side\s+)?hops?|single\s+leg\s+pogo/i,"Single Leg Hops"],
   [/plate\s+step\s+overs?/i,"Lateral Plate Step Over"],[/(?:db|dumbbell)\s+deadlift\s+jumps?/i,"Dumbbell Deadlift Jump"],
-  [/continuous\s+broad\s+jumps?/i,"Continuous Broad Jump"],[/high\s+jumps?/i,"Box High Jump"],
-  [/hang\s+power\s+snatch/i,"Hang Power Snatch"],[/power\s+snatch/i,"Power Snatch"],[/snatch\s+balance/i,"Snatch Balance"],
-  [/hang\s+power\s+clean/i,"Hang Power Clean"],[/power\s+clean/i,"Power Clean"],[/squat\s+clean/i,"Squat Clean"],
-  [/clean\s+pull/i,"Clean Pull"],[/split\s+jerk/i,"Split Jerk"],[/push\s+jerk/i,"Push Jerk"]
+  [/continuous\s+broad\s+jumps?/i,"Continuous Broad Jump"],[/high\s+jumps?/i,"Box High Jump"]
 ];
 let VIDEOS = {};
 fetch("/videos.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { VIDEOS = j || {}; }).catch(() => {});
-const isExplosiveDay = focus => /expl|oly|plyo/i.test(focus || "");
+const isExplosiveDay = focus => /expl|plyo/i.test(focus || "");
 function videoLink(line){
   for (const [re, name] of EXPLOSIVE) if (re.test(line)) {
     const href = VIDEOS[name] || "https://www.youtube.com/results?search_query=" + encodeURIComponent(name + " technique");
