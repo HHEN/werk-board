@@ -36,3 +36,7 @@ Tap **1RM** in the header to enter Pia's and Henning's 1RMs (kg). Any line with 
 ## Feedback (Sundays)
 
 Every Sunday shows a "Feedback for Claude" box: one note per week, autosaved via `api/feedback.js` (same Upstash store). `GET /api/feedback` returns all notes, `?week=Fall%202026%7C8` one week. "Copy for chat" copies the note with the week label.
+
+## Video links (explosive days)
+
+On days whose focus is Expl / Oly / Plyo, explosive movements in WOD A get a "▶ Video" link. By default it opens a YouTube search for "<movement> technique". To use a specific video, add it to `public/videos.json`, e.g. `{ "Depth Drop": "https://www.youtube.com/watch?v=..." }` (keys are the movement names in `EXPLOSIVE` in index.html).

@@ -97,7 +97,9 @@ main{display:grid;gap:12px;margin-top:6px}
 .plate{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:18px;color:#fff;box-shadow:inset 0 0 0 4px rgba(255,255,255,.18)}
 .daypic{border-radius:12px;overflow:hidden;background:var(--line);aspect-ratio:4/3;max-width:100%}
 .daypic img{display:block;width:100%;height:100%;object-fit:cover}
-.plate.w{background:var(--muted)}.plate.f{background:var(--green);font-size:16px}
+.plate.w{background:var(--muted)}
+.vid{display:inline-block;margin-left:8px;vertical-align:1px;font-size:12px;font-weight:600;color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);border-radius:6px;padding:1px 7px;text-decoration:none;white-space:nowrap}
+.vid:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.plate.f{background:var(--green);font-size:16px}
 .slab.fb textarea{width:100%;margin-top:6px;font:inherit;font-size:16px;line-height:1.45;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
 .slab.fb textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
 .slab.fb .st{font-size:12px;color:var(--green);white-space:nowrap}
@@ -300,7 +302,34 @@ function pctChip(lift, pcts){
   if (!parts.length) return `<button class="pct pct-set" data-lift="${lift}">+ 1RM</button>`;
   return `<button class="pct" data-lift="${lift}" aria-label="${esc(LIFT_NAME[lift])} loads">${parts.join(" · ")}</button>`;
 }
-function wodHTML(text, notes){
+// ---- Video links for explosive movements (YouTube search, or a direct link from /videos.json) ----
+const EXPLOSIVE = [
+  [/depth\s+drops?/i,"Depth Drop"],[/depth\s+jumps?/i,"Depth Jump"],
+  [/lateral\s+skater\s+hops?|skater\s+(?:hops?|jumps?)/i,"Lateral Skater Hop"],
+  [/lateral\s+bounds?/i,"Lateral Bound"],[/broad\s+jumps?/i,"Broad Jump"],
+  [/quarter\s+jump\s+squats?/i,"Quarter Squat Jump"],[/pogo\s+hops?/i,"Pogo Hops"],
+  [/seated\s+(?:high\s+)?box\s+jumps?/i,"Seated Box Jump"],[/(?:alternating\s+)?lunge\s+jumps?|jumping\s+lunges?/i,"Jumping Lunge"],
+  [/plyo(?:metric)?\s+push[\s-]?ups?/i,"Plyometric Push Up"],[/rotational\s+wall\s*ball\s+throws?/i,"Rotational Med Ball Wall Throw"],
+  [/vertical\s+jumps?/i,"Vertical Jump"],[/(?:med(?:icine)?\s*ball\s+)?chest\s+pass/i,"Med Ball Chest Pass"],
+  [/reactive\s+split\s+jumps?|split\s+jumps?/i,"Split Jump"],[/tuck\s+jumps?/i,"Tuck Jump"],
+  [/single\s+leg\s+(?:side\s+to\s+side\s+)?hops?|single\s+leg\s+pogo/i,"Single Leg Hops"],
+  [/plate\s+step\s+overs?/i,"Lateral Plate Step Over"],[/(?:db|dumbbell)\s+deadlift\s+jumps?/i,"Dumbbell Deadlift Jump"],
+  [/continuous\s+broad\s+jumps?/i,"Continuous Broad Jump"],[/high\s+jumps?/i,"Box High Jump"],
+  [/hang\s+power\s+snatch/i,"Hang Power Snatch"],[/power\s+snatch/i,"Power Snatch"],[/snatch\s+balance/i,"Snatch Balance"],
+  [/hang\s+power\s+clean/i,"Hang Power Clean"],[/power\s+clean/i,"Power Clean"],[/squat\s+clean/i,"Squat Clean"],
+  [/clean\s+pull/i,"Clean Pull"],[/split\s+jerk/i,"Split Jerk"],[/push\s+jerk/i,"Push Jerk"]
+];
+let VIDEOS = {};
+fetch("/videos.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { VIDEOS = j || {}; }).catch(() => {});
+const isExplosiveDay = focus => /expl|oly|plyo/i.test(focus || "");
+function videoLink(line){
+  for (const [re, name] of EXPLOSIVE) if (re.test(line)) {
+    const href = VIDEOS[name] || "https://www.youtube.com/results?search_query=" + encodeURIComponent(name + " technique");
+    return ` <a class="vid" href="${esc(href)}" target="_blank" rel="noopener" aria-label="Video: ${esc(name)}">▶ Video</a>`;
+  }
+  return "";
+}
+function wodHTML(text, notes, videos){
   if (notes) return text.split("\n").map(ln => esc(ln).replace(/^(Echo Bike variation|RPE 5 option|Goal|TC|Strength)(:)/, '<span class="hl">$1$2</span>')).join("\n");
   let ctx = null; const shown = new Set();
   const lines = text.split("\n").map((ln, i) => {
@@ -313,8 +342,9 @@ function wodHTML(text, notes){
       if (S.maxes && !(shown.has(l) && !Object.keys(S.maxes).some(k => k.endsWith(":"+l)))) chip = pctChip(l, pcts);
       shown.add(l);
     }
-    if (i === 0 && FMT_RE.test(ln)) return { fmt:true, html:`<span class="fmt">${e}</span>${chip}` };
-    return { html: e.replace(/(\d+(?:\.\d+)?\/\d+(?:\.\d+)?\s?(?:kg|cal|m)?'?)/g, '<span class="load">$1</span>') + chip };
+    const vid = videos ? videoLink(ln) : "";
+    if (i === 0 && FMT_RE.test(ln)) return { fmt:true, html:`<span class="fmt">${e}</span>${chip}${vid}` };
+    return { html: e.replace(/(\d+(?:\.\d+)?\/\d+(?:\.\d+)?\s?(?:kg|cal|m)?'?)/g, '<span class="load">$1</span>') + chip + vid };
   });
   if (lines[0] && lines[0].fmt) return lines[0].html + lines.slice(1).map(l => l.html).join("\n");
   return lines.map(l => l.html).join("\n");
@@ -358,6 +388,7 @@ function render(){
   if (!A && !B) html += `<div class="empty">Rest day, or nothing programmed for ${DAY_NAMES[S.di]}${date?` ${fmt(date)}`:""}.</div>`;
   const WU = ((WARMUPS[S.tab]||{})[w.no]||[])[S.di] || "";
   if (WU && (A || B)) html += warmSlab(WU);
+  S.vidA = isExplosiveDay(focus);
   if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false, w);
   if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false, w);
   if (N) html += slab("n","!", "Notes", N, true, w);
@@ -435,7 +466,7 @@ $("main").addEventListener("input", e => {
 });
 $("main").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches(".score input")) e.target.blur(); });
 $("main").addEventListener("click", e => {
-  if (e.target.closest(".scores")) return;
+  if (e.target.closest(".scores, a")) return;
   const sl = e.target.closest(".slab[data-part]"); if (!sl) return;
   if (window.getSelection && String(window.getSelection()).length) return;
   const w = S.weeks[S.wi]; const k = openKey(w, sl.dataset.part);
@@ -538,7 +569,7 @@ const slab = (cls, mark, label, text, notes, w) => {
   if (notes) return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, true)}</div></div></section>`;
   const open = S.open === openKey(w, cls);
   const sum = scoreSummary(w, cls);
-  return `<section class="slab tap${open?" open":""}" data-part="${cls}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-row"><div class="slab-label">${label}</div><button class="score-btn" aria-expanded="${open}">${open ? "Done" : (sum ? "Edit score" : "+ Score")}</button></div><div class="wod">${wodHTML(text, false)}</div><div class="score-sum" data-sum="${cls}">${open ? "" : sum}</div>${open ? scoreFields(w, cls) : ""}</div></section>`;
+  return `<section class="slab tap${open?" open":""}" data-part="${cls}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-row"><div class="slab-label">${label}</div><button class="score-btn" aria-expanded="${open}">${open ? "Done" : (sum ? "Edit score" : "+ Score")}</button></div><div class="wod">${wodHTML(text, false, cls === "a" && S.vidA)}</div><div class="score-sum" data-sum="${cls}">${open ? "" : sum}</div>${open ? scoreFields(w, cls) : ""}</div></section>`;
 };
 
 function bannerHTML(){
