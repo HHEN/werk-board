@@ -97,7 +97,11 @@ main{display:grid;gap:12px;margin-top:6px}
 .plate{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:18px;color:#fff;box-shadow:inset 0 0 0 4px rgba(255,255,255,.18)}
 .daypic{border-radius:12px;overflow:hidden;background:var(--line);aspect-ratio:4/3;max-width:100%}
 .daypic img{display:block;width:100%;height:100%;object-fit:cover}
-.plate.w{background:var(--muted)}.slab.warm .wod{font-size:15px}
+.plate.w{background:var(--muted)}.plate.f{background:var(--green);font-size:16px}
+.slab.fb textarea{width:100%;margin-top:6px;font:inherit;font-size:16px;line-height:1.45;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
+.slab.fb textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.slab.fb .st{font-size:12px;color:var(--green);white-space:nowrap}
+.fb-row{display:flex;justify-content:flex-end;margin-top:8px}.slab.warm .wod{font-size:15px}
 .plate.a{background:var(--blue)}.plate.b{background:var(--red)}.plate.n{background:var(--yellow)}
 .slab-body{min-width:0}
 .slab-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
@@ -357,6 +361,7 @@ function render(){
   if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false, w);
   if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false, w);
   if (N) html += slab("n","!", "Notes", N, true, w);
+  if (S.di === 6) html += feedbackSlab(w);
   $("main").innerHTML = html;
   loadScores(w);
   $("foot").textContent = S.updated ? `Updated from the sheet ${new Date(S.updated).toLocaleString("de-DE",{weekday:"short",hour:"2-digit",minute:"2-digit"})}` : "";
@@ -487,6 +492,48 @@ const warmSlab = text => {
   if (/^\d+\s?min$/i.test(lines[0].trim())){ head += " · " + lines.shift().trim(); }
   return `<section class="slab warm"><div class="plate w" aria-hidden="true">W</div><div class="slab-body"><div class="slab-label">${esc(head)}</div><div class="wod">${lines.map(esc).join("\n")}</div></div></section>`;
 };
+// ---- Sunday feedback for Claude (one note per week, via /api/feedback; falls back to this phone) ----
+S.feedback = {};
+const fbLoaded = new Set();
+function feedbackSlab(w){
+  const id = weekId(w);
+  if (!fbLoaded.has(id)) loadFeedback(id);
+  const v = S.feedback[id] ?? (store.get("fb:"+id) || "");
+  return `<section class="slab fb"><div class="plate f" aria-hidden="true">✎</div><div class="slab-body"><div class="slab-row"><label class="slab-label" for="fbText">Feedback for Claude · Week ${w.no}</label><span class="st" id="fbSt"></span></div><textarea id="fbText" rows="5" maxlength="5000" placeholder="How did the week feel? Too easy, too long, movements you missed, anything for next week…">${esc(v)}</textarea><div class="fb-row"><button class="score-btn" id="fbCopy" type="button">Copy for chat</button></div></div></section>`;
+}
+async function loadFeedback(id){
+  fbLoaded.add(id);
+  try {
+    const r = await fetch("/api/feedback?" + new URLSearchParams({ week: id }), { cache: "no-store" });
+    if (r.ok){ const j = await r.json(); S.feedback[id] = j.feedback || store.get("fb:"+id) || ""; }
+  } catch (e) {}
+  const ta = $("fbText");
+  if (ta && document.activeElement !== ta && S.weeks[S.wi] && weekId(S.weeks[S.wi]) === id) ta.value = S.feedback[id] ?? ta.value;
+}
+let fbTimer = null;
+$("main").addEventListener("input", e => {
+  if (e.target.id !== "fbText") return;
+  const w = S.weeks[S.wi]; if (!w) return;
+  const id = weekId(w), text = e.target.value;
+  S.feedback[id] = text; store.set("fb:"+id, text);
+  $("fbSt").textContent = "…";
+  clearTimeout(fbTimer);
+  fbTimer = setTimeout(async () => {
+    try {
+      const r = await fetch("/api/feedback", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ week:id, text }) });
+      $("fbSt").textContent = r.ok ? "Saved" : r.status === 501 ? "Saved on this phone" : "Not saved";
+    } catch (err) { $("fbSt").textContent = "Offline, on phone"; }
+  }, 800);
+});
+$("main").addEventListener("click", async e => {
+  if (e.target.id !== "fbCopy") return;
+  const w = S.weeks[S.wi]; const ta = $("fbText");
+  const txt = `Feedback ${S.tab} week ${w.no}:\n${ta.value}`;
+  try { await navigator.clipboard.writeText(txt); e.target.textContent = "Copied"; }
+  catch (err) { ta.select(); e.target.textContent = "Selected, copy it"; }
+  setTimeout(() => { e.target.textContent = "Copy for chat"; }, 1500);
+});
+
 const slab = (cls, mark, label, text, notes, w) => {
   if (notes) return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, true)}</div></div></section>`;
   const open = S.open === openKey(w, cls);

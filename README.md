@@ -32,3 +32,7 @@ Vercel → Project → Storage → Create → **Upstash for Redis** (free) → c
 ## 1RMs
 
 Tap **1RM** in the header to enter Pia's and Henning's 1RMs (kg). Any line with a lift and a percentage (e.g. `3 Front Squat 74%`, `Back Squat at 82`, `80-83-90%` under a lift) shows each person's load, rounded to 2.5 kg. Tap a load chip to jump to that lift's 1RM. Stored in the same Upstash store via `api/maxes.js`.
+
+## Feedback (Sundays)
+
+Every Sunday shows a "Feedback for Claude" box: one note per week, autosaved via `api/feedback.js` (same Upstash store). `GET /api/feedback` returns all notes, `?week=Fall%202026%7C8` one week. "Copy for chat" copies the note with the week label.
