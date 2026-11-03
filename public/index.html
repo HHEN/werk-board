@@ -102,6 +102,8 @@ main{display:grid;gap:12px;margin-top:6px}
 .vid:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.plate.f{background:var(--green);font-size:16px}
 .slab.fb textarea{width:100%;margin-top:6px;font:inherit;font-size:16px;line-height:1.45;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
 .slab.fb textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.pub-code{width:100%;margin-top:8px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.pub-go:disabled{opacity:.6}.score-hint.pub-err{color:var(--red);font-weight:600}
 .slab.fb .st{font-size:12px;color:var(--green);white-space:nowrap}
 .fb-row{display:flex;justify-content:flex-end;margin-top:8px}.slab.warm .wod{font-size:15px}
 .plate.a{background:var(--blue)}.plate.b{background:var(--red)}.plate.n{background:var(--yellow)}
@@ -389,7 +391,7 @@ function render(){
   if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false, w);
   if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false, w);
   if (N) html += slab("n","!", "Notes", N, true, w);
-  if (S.di === 6) html += feedbackSlab(w);
+  if (S.di === 6) html += feedbackSlab(w) + publishSlab();
   $("main").innerHTML = html;
   loadScores(w);
   $("foot").textContent = S.updated ? `Updated from the sheet ${new Date(S.updated).toLocaleString("de-DE",{weekday:"short",hour:"2-digit",minute:"2-digit"})}` : "";
@@ -523,6 +525,41 @@ const warmSlab = text => {
 // ---- Sunday feedback for Claude (one note per week, via /api/feedback; falls back to this phone) ----
 S.feedback = {};
 const fbLoaded = new Set();
+// ---- Sunday: approve next week and send it to the CrossFit Werk app (via /api/publish) ----
+S.pub = {}; S.pubCode = "";
+const PUB_ERR = { bad_code:"Wrong code.", too_many_tries:"Too many tries. Wait 15 minutes.", publish_not_set_up:"PUBLISH_CODE isn't set in the Werk app yet.", unreachable:"Couldn't reach the Werk app.", no_week:"The Werk app couldn't read this week." };
+async function pubCall(w, action, code){
+  const r = await fetch("/api/publish", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ action, tab:S.tab, week:w.no, code }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(PUB_ERR[j.code] || "That didn't work. Try again.");
+  return j.status;
+}
+function publishSlab(){
+  const w = S.weeks[S.wi + 1];
+  const head = `<section class="slab fb" id="pubSlab"><div class="plate a" aria-hidden="true">✓</div><div class="slab-body"><div class="slab-row"><div class="slab-label">CrossFit Werk${w ? ` · Week ${w.no}` : ""}</div><span class="st" id="pubSt"></span></div>`;
+  if (!w) return head + `<div class="score-hint">Next week isn't programmed yet.</div></div></section>`;
+  const id = weekId(w), code = store.get("publishCode"), p = S.pub[id] || {};
+  if (code && !p.status && !p.loading && !p.error){ p.loading = true; S.pub[id] = p; pubCall(w, "status", code).then(st => { p.status = st; }).catch(e => { p.error = e.message; if (/Wrong code/.test(e.message)) { try { localStorage.removeItem("publishCode"); } catch (x) {} } }).finally(() => { p.loading = false; if (S.weeks[S.wi+1]?.no === w.no && S.di === 6 && document.activeElement?.id !== "fbText") render(); }); }
+  const msg = p.error ? `<div class="score-hint pub-err">${esc(p.error)}</div>` : "";
+  if (p.status === "live") return head + `<div class="score-hint">Live for members.</div>${msg}</div></section>`;
+  const dates = w.start ? `${fmt(w.start)} – ${fmt(addDays(w.start,6))}` : "";
+  const text = p.status === "changed" ? "Members still see an older version." : p.status === "draft" ? `Not published yet. ${dates}` : p.loading ? "Checking…" : `Sends next week to the members' app. ${dates}`;
+  const field = code ? "" : `<input class="pub-code" id="pubCode" type="password" autocomplete="off" placeholder="Publish code" aria-label="Publish code" value="${esc(S.pubCode)}">`;
+  const label = p.status === "changed" ? "Approve changes" : "Approve & publish";
+  return head + `<div class="score-hint">${esc(text)}</div>${msg}${field}<div class="fb-row"><button class="score-btn pub-go" id="pubGo" type="button"${p.busy?" disabled":""}>${p.busy ? "Sending…" : label}</button></div></div></section>`;
+}
+$("main").addEventListener("input", e => { if (e.target.id === "pubCode") S.pubCode = e.target.value; });
+$("main").addEventListener("click", async e => {
+  const b = e.target.closest("#pubGo"); if (!b) return;
+  const w = S.weeks[S.wi + 1], code = store.get("publishCode") || S.pubCode.trim();
+  const id = weekId(w), p = S.pub[id] = S.pub[id] || {};
+  if (!code){ p.error = "Enter the publish code."; return render(); }
+  if (!b.dataset.armed){ b.dataset.armed = "1"; b.textContent = `Tap again: Week ${w.no} goes live`; setTimeout(() => { if (b.isConnected){ delete b.dataset.armed; b.textContent = p.status === "changed" ? "Approve changes" : "Approve & publish"; } }, 4000); return; }
+  p.busy = true; p.error = null; render();
+  try { p.status = await pubCall(w, "publish", code); store.set("publishCode", code); S.pubCode = ""; }
+  catch (err) { p.error = err.message || "No connection."; }
+  p.busy = false; render();
+});
 function feedbackSlab(w){
   const id = weekId(w);
   if (!fbLoaded.has(id)) loadFeedback(id);

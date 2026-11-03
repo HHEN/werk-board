@@ -37,6 +37,10 @@ Tap **1RM** in the header to enter Pia's and Henning's 1RMs (kg). Any line with 
 
 Every Sunday shows a "Feedback for Claude" box: one note per week, autosaved via `api/feedback.js` (same Upstash store). `GET /api/feedback` returns all notes, `?week=Fall%202026%7C8` one week. "Copy for chat" copies the note with the week label.
 
+## Approve for CrossFit Werk (Sundays)
+
+Every Sunday shows a CrossFit Werk card for next week. "Approve & publish" sends that week from `data.json` to the Werk app, where members see it. The first time, enter the code set as `PUBLISH_CODE` in the Werk project on Vercel; the phone remembers it. `api/publish.js` talks to `https://crossfit-werk.vercel.app`, or to `WERK_URL` if set on this Vercel project. Unpublishing is done in the Werk app.
+
 ## Video links (explosive days)
 
 On explosive days (focus Expl / Plyo, the B-week Fridays), plyo movements in WOD A get a "▶ Video" link. By default it opens a YouTube search for "<movement> technique". To use a specific video, add it to `public/videos.json`, e.g. `{ "Depth Drop": "https://www.youtube.com/watch?v=..." }` (keys are the movement names in `EXPLOSIVE` in index.html).
