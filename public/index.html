@@ -69,6 +69,10 @@ select{background:var(--surface);border:1px solid var(--line);border-radius:8px;
 .weekbar{display:flex;align-items:center;gap:8px}
 .wk-btn{background:none;border:0;padding:6px 8px;cursor:pointer;color:var(--muted);font-size:20px;line-height:1}
 .wk-btn:disabled{opacity:.3;cursor:default}
+.slide-l{animation:slideL .22s ease-out}.slide-r{animation:slideR .22s ease-out}
+@keyframes slideL{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.slide-l,.slide-r{animation:none}}
 .wk-mid{flex:1;min-width:0;text-align:center}
 .wk-title{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.03em;line-height:1.1}
 .wk-sub{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -684,12 +688,29 @@ function fillTabs(){
 }
 
 $("days").addEventListener("click", e => { const b = e.target.closest(".day"); if (!b) return; S.di = +b.dataset.i; S.picked = true; render(); });
-$("prevWk").onclick = () => { if (S.wi > 0){ S.wi--; S.di = 0; S.picked = true; render(); } };
-$("nextWk").onclick = () => { if (S.wi < S.weeks.length-1){ S.wi++; S.di = 0; S.picked = true; render(); } };
+$("prevWk").onclick = () => goWeek(-1);
+$("nextWk").onclick = () => goWeek(1);
 $("refresh").onclick = () => load(true);
 $("tabSel").onchange = e => { S.tab = e.target.value; store.set("werk:tab", S.tab); showTab(); };
 
-// swipe between days
+// swipe on the header (week bar + day strip) = previous / next week, same weekday
+function goWeek(step){
+  const ni = S.wi + step;
+  if (ni < 0 || ni >= S.weeks.length) return false;
+  S.wi = ni; S.picked = true; render();
+  const m = $("main"); m.classList.remove("slide-l","slide-r"); void m.offsetWidth; m.classList.add(step > 0 ? "slide-l" : "slide-r");
+  return true;
+}
+let hx = null, hy = null;
+document.querySelector("header").addEventListener("touchstart", e => { if (e.target.closest("select,button.icon-btn")) { hx = null; return; } hx = e.touches[0].clientX; hy = e.touches[0].clientY; }, {passive:true});
+document.querySelector("header").addEventListener("touchend", e => {
+  if (hx == null) return;
+  const dx = e.changedTouches[0].clientX - hx, dy = e.changedTouches[0].clientY - hy; hx = null;
+  if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+  goWeek(dx < 0 ? 1 : -1);
+});
+
+// swipe on the workouts = previous / next day
 let sx = null, sy = null;
 $("main").addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
 $("main").addEventListener("touchend", e => {
