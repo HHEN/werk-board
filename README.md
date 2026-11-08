@@ -39,7 +39,7 @@ Every Sunday shows a "Feedback for Claude" box: one note per week, autosaved via
 
 ## Approve for CrossFit Werk (Sundays)
 
-Every Sunday shows a CrossFit Werk card for next week. "Approve & publish" sends that week from `data.json` to the Werk app, where members see it. The first time, enter the code set as `PUBLISH_CODE` in the Werk project on Vercel; the phone remembers it. `api/publish.js` talks to `https://crossfit-werk.vercel.app`, or to `WERK_URL` if set on this Vercel project. Unpublishing is done in the Werk app.
+This app runs one week ahead of class (you test each week first). Every Sunday shows a CrossFit Werk card for the week you just tested. "Approve & publish" sends that week from `data.json` to the Werk app, where members see it. The first time, enter the code set as `PUBLISH_CODE` in the Werk project on Vercel; the phone remembers it. `api/publish.js` talks to `https://crossfit-werk.vercel.app`, or to `WERK_URL` if set on this Vercel project. Unpublishing is done in the Werk app.
 
 ## Video links (explosive days)
 
