@@ -222,6 +222,8 @@ function parseDate(s){
   const m = clean(s).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
   return m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
 }
+// This app runs one week ahead of class: each week is tested the week before members do it.
+const AHEAD = 7;
 const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
 const sameDay = (a,b) => a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
 const fmt = d => d ? d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"}) : "";
@@ -240,7 +242,8 @@ function parseSheet(values){
   }
   weeks.forEach(w => {
     const i = w.dates.findIndex(Boolean);
-    w.start = i >= 0 ? addDays(w.dates[i], -i) : null;
+    w.classStart = i >= 0 ? addDays(w.dates[i], -i) : null;
+    w.start = w.classStart ? addDays(w.classStart, -AHEAD) : null;
     const A = w.rows["wod a"] || [], B = w.rows["wod b"] || [];
     w.filled = A.some(Boolean) || B.some(Boolean);
   });
@@ -539,15 +542,15 @@ async function pubCall(w, action, code){
   return j.status;
 }
 function publishSlab(){
-  const w = S.weeks[S.wi + 1];
+  const w = S.weeks[S.wi];
   const head = `<section class="slab fb" id="pubSlab"><div class="plate a" aria-hidden="true">✓</div><div class="slab-body"><div class="slab-row"><div class="slab-label">CrossFit Werk${w ? ` · Week ${w.no}` : ""}</div><span class="st" id="pubSt"></span></div>`;
   if (!w) return head + `<div class="score-hint">Next week isn't programmed yet.</div></div></section>`;
   const id = weekId(w), code = store.get("publishCode"), p = S.pub[id] || {};
-  if (code && !p.status && !p.loading && !p.error){ p.loading = true; S.pub[id] = p; pubCall(w, "status", code).then(st => { p.status = st; }).catch(e => { p.error = e.message; if (/Wrong code/.test(e.message)) { try { localStorage.removeItem("publishCode"); } catch (x) {} } }).finally(() => { p.loading = false; if (S.weeks[S.wi+1]?.no === w.no && S.di === 6 && document.activeElement?.id !== "fbText") render(); }); }
+  if (code && !p.status && !p.loading && !p.error){ p.loading = true; S.pub[id] = p; pubCall(w, "status", code).then(st => { p.status = st; }).catch(e => { p.error = e.message; if (/Wrong code/.test(e.message)) { try { localStorage.removeItem("publishCode"); } catch (x) {} } }).finally(() => { p.loading = false; if (S.weeks[S.wi]?.no === w.no && S.di === 6 && document.activeElement?.id !== "fbText") render(); }); }
   const msg = p.error ? `<div class="score-hint pub-err">${esc(p.error)}</div>` : "";
   if (p.status === "live") return head + `<div class="score-hint">Live for members.</div>${msg}</div></section>`;
-  const dates = w.start ? `${fmt(w.start)} – ${fmt(addDays(w.start,6))}` : "";
-  const text = p.status === "changed" ? "Members still see an older version." : p.status === "draft" ? `Not published yet. ${dates}` : p.loading ? "Checking…" : `Sends next week to the members' app. ${dates}`;
+  const dates = w.classStart ? `${fmt(w.classStart)} – ${fmt(addDays(w.classStart,6))}` : "";
+  const text = p.status === "changed" ? "Members still see an older version." : p.status === "draft" ? `Not published yet. ${dates}` : p.loading ? "Checking…" : `Sends this week to the members' app for class. ${dates}`;
   const field = code ? "" : `<input class="pub-code" id="pubCode" type="password" autocomplete="off" placeholder="Publish code" aria-label="Publish code" value="${esc(S.pubCode)}">`;
   const label = p.status === "changed" ? "Approve changes" : "Approve & publish";
   return head + `<div class="score-hint">${esc(text)}</div>${msg}${field}<div class="fb-row"><button class="score-btn pub-go" id="pubGo" type="button"${p.busy?" disabled":""}>${p.busy ? "Sending…" : label}</button></div></div></section>`;
@@ -555,7 +558,7 @@ function publishSlab(){
 $("main").addEventListener("input", e => { if (e.target.id === "pubCode") S.pubCode = e.target.value; });
 $("main").addEventListener("click", async e => {
   const b = e.target.closest("#pubGo"); if (!b) return;
-  const w = S.weeks[S.wi + 1], code = store.get("publishCode") || S.pubCode.trim();
+  const w = S.weeks[S.wi], code = store.get("publishCode") || S.pubCode.trim();
   const id = weekId(w), p = S.pub[id] = S.pub[id] || {};
   if (!code){ p.error = "Enter the publish code."; return render(); }
   if (!b.dataset.armed){ b.dataset.armed = "1"; b.textContent = `Tap again: Week ${w.no} goes live`; setTimeout(() => { if (b.isConnected){ delete b.dataset.armed; b.textContent = p.status === "changed" ? "Approve changes" : "Approve & publish"; } }, 4000); return; }
