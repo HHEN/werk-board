@@ -489,8 +489,20 @@ $("main").addEventListener("click", e => {
   if (e.target.closest(".scores, a")) return;
   const sl = e.target.closest(".slab[data-part]"); if (!sl) return;
   if (window.getSelection && String(window.getSelection()).length) return;
-  const w = S.weeks[S.wi]; const k = openKey(w, sl.dataset.part);
-  S.open = S.open === k ? null : k;
+  const w = S.weeks[S.wi], part = sl.dataset.part, k = openKey(w, part);
+  const closing = S.open === k;
+  if (closing){
+    // flush pending saves, then cheer if a score was entered or changed
+    document.querySelectorAll(`.slab[data-part="${part}"] .score input`).forEach(inp => {
+      const tk = part + inp.dataset.person;
+      if (saveTimers[tk]){ clearTimeout(saveTimers[tk]); delete saveTimers[tk]; saveScore(part, inp.dataset.person, inp.value.trim()); }
+    });
+    const sc = S.scores[weekId(w)] || {};
+    const who = PEOPLE.filter(([id]) => { const v = sc[`${S.di}:${part}:${id}`] || ""; return v && v !== (S.openSnap || {})[id]; });
+    if (who.length) cheer(who.map(([, n]) => n).join(" & "));
+  }
+  S.open = closing ? null : k;
+  if (S.open){ const sc = S.scores[weekId(w)] || {}; S.openSnap = Object.fromEntries(PEOPLE.map(([id]) => [id, sc[`${S.di}:${part}:${id}`] || ""])); }
   render();
   if (S.open){ const inp = document.querySelector(`.slab[data-part="${sl.dataset.part}"] .score input`); if (inp) inp.focus({ preventScroll:false }); }
 });
@@ -678,12 +690,10 @@ function toast(msg){
   clearTimeout(toastT);
   toastT = setTimeout(() => { t.classList.remove("in"); setTimeout(() => t.remove(), 450); }, 3000);
 }
-$("main").addEventListener("change", e => {
-  const inp = e.target.closest(".score input"); if (!inp || !inp.value.trim()) return;
-  const name = (PEOPLE.find(([id]) => id === inp.dataset.person) || [,""])[1];
+function cheer(name){
   let i; do { i = Math.floor(Math.random() * AFFIRM.length); } while (i === lastAff && AFFIRM.length > 1);
   lastAff = i; toast(AFFIRM[i](name));
-});
+}
 
 const slab = (cls, mark, label, text, notes, w) => {
   if (notes){
