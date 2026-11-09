@@ -409,7 +409,9 @@ function render(){
   if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false, w);
   if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false, w);
   const CX = (COACH[S.tab]||{})[w.no]?.[S.di];
-  if (N || (CX && (A || B))) html += slab("n","!", "Notes", N, true, w);
+  const mA = S.vidA ? "" : mixHTML(A), mB = mixHTML(B);
+  S.mixes = mA && mB ? mixHTML(A, "WOD A") + mixHTML(B, sunday ? "Workout" : "WOD B") : (mA || mB);
+  if (N || S.mixes || (CX && (A || B))) html += slab("n","!", "Notes", N, true, w);
   if (S.di === 6) html += feedbackSlab(w) + publishSlab();
   $("main").innerHTML = html;
   loadScores(w);
@@ -654,11 +656,11 @@ function analyzeWod(text){
   const [top, c] = Object.entries(count).sort((a,b) => b[1]-a[1])[0];
   return { pos: (c - 1) / (n - 1), top, c, n, mono };
 }
-function mixHTML(text){
-  const a = analyzeWod(text); if (!a) return "";
+function mixHTML(text, title){
+  const a = text && analyzeWod(text); if (!a) return "";
   const pct = Math.round(a.pos * 100);
   const why = a.c === 1 ? `${a.n} movements, all different functions` : `${a.top} in ${a.c} of ${a.n} movements`;
-  return `<div class="mx" role="img" aria-label="${pct}% towards muscle endurance: ${esc(why)}"><div class="mx-lbl"><span>VO2 max</span><span>Muscle endurance</span></div><div class="mx-bar"><span class="mx-dot" style="left:${Math.min(96,Math.max(4,pct))}%"></span></div><div class="mx-why">${esc(why)}${a.mono ? " · mono not counted" : ""}</div></div>`;
+  return `<div class="mx" role="img" aria-label="${pct}% towards muscle endurance: ${esc(why)}">${title ? `<div class="nx-h">${esc(title)}</div>` : ""}<div class="mx-lbl"><span>VO2 max</span><span>Muscle endurance</span></div><div class="mx-bar"><span class="mx-dot" style="left:${Math.min(96,Math.max(4,pct))}%"></span></div><div class="mx-why">${esc(why)}${a.mono ? " · mono not counted" : ""}</div></div>`;
 }
 
 // ---- affirmation toast when a score is submitted ----
@@ -688,11 +690,11 @@ const slab = (cls, mark, label, text, notes, w) => {
     const x = (COACH[S.tab]||{})[w.no]?.[S.di] || {};
     const sec = (h, t) => t ? `<div class="nx"><div class="nx-h">${h}</div><div class="wod">${esc(t)}</div></div>` : "";
     const main = text ? `<div class="wod">${wodHTML(text, true)}</div>` : "";
-    return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div>${main}${sec("Stimulus", x.stimulus)}${sec("Strategy", x.strategy)}</div></section>`;
+    return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div>${main}${sec("Stimulus", x.stimulus)}${S.mixes || ""}${sec("Strategy", x.strategy)}</div></section>`;
   }
   const open = S.open === openKey(w, cls);
   const sum = scoreSummary(w, cls);
-  return `<section class="slab tap${open?" open":""}" data-part="${cls}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-row"><div class="slab-label">${label}</div><button class="score-btn" aria-expanded="${open}">${open ? "Done" : (sum ? "Edit score" : "+ Score")}</button></div><div class="wod">${wodHTML(text, false, cls === "a" && S.vidA)}</div>${cls === "a" && S.vidA ? "" : mixHTML(text)}<div class="score-sum" data-sum="${cls}">${open ? "" : sum}</div>${open ? scoreFields(w, cls) : ""}</div></section>`;
+  return `<section class="slab tap${open?" open":""}" data-part="${cls}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-row"><div class="slab-label">${label}</div><button class="score-btn" aria-expanded="${open}">${open ? "Done" : (sum ? "Edit score" : "+ Score")}</button></div><div class="wod">${wodHTML(text, false, cls === "a" && S.vidA)}</div><div class="score-sum" data-sum="${cls}">${open ? "" : sum}</div>${open ? scoreFields(w, cls) : ""}</div></section>`;
 };
 
 function bannerHTML(){
