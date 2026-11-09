@@ -138,6 +138,17 @@ main{display:grid;gap:12px;margin-top:6px}
 .score-hint{font-size:12px;color:var(--muted);margin-top:8px}
 .empty,.banner{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px 16px;color:var(--muted);font-size:14px}
 .banner{border-style:solid;border-color:var(--yellow);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,8px);z-index:40;max-width:min(420px,calc(100vw - 32px));background:var(--ink);color:var(--surface);font-size:15px;font-weight:600;line-height:1.35;text-align:center;padding:11px 18px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .4s,transform .4s;pointer-events:none}
+.toast.in{opacity:1;transform:translate(-50%,0)}
+.mx{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.mx-bar{position:relative;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--red));margin:6px 0 4px}
+.mx-dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);transform:translate(-50%,-50%)}
+.mx-lbl{display:flex;justify-content:space-between;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mx-why{font-size:12px;color:var(--muted);margin-top:4px}
+.nx{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.nx-h{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+@media (prefers-reduced-motion:reduce){.toast{transition:opacity .2s}}
+
 .banner b{display:block;margin-bottom:2px}
 .foot{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
 .install{margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:12px 16px;font-weight:600;font-size:15px;cursor:pointer}
@@ -397,7 +408,8 @@ function render(){
   S.vidA = isExplosiveDay(focus);
   if (A) html += slab("a","A", sunday && B ? "Hero" : "WOD A", A, false, w);
   if (B) html += slab("b","B", sunday ? "Workout" : "WOD B", B, false, w);
-  if (N) html += slab("n","!", "Notes", N, true, w);
+  const CX = (COACH[S.tab]||{})[w.no]?.[S.di];
+  if (N || (CX && (A || B))) html += slab("n","!", "Notes", N, true, w);
   if (S.di === 6) html += feedbackSlab(w) + publishSlab();
   $("main").innerHTML = html;
   loadScores(w);
@@ -606,11 +618,81 @@ $("main").addEventListener("click", async e => {
   setTimeout(() => { e.target.textContent = "Copy for chat"; }, 1500);
 });
 
+// ---- VO2 max <-> muscle endurance: how many movements share one function (Movement Checklist 2025) ----
+// Mono (run, row, DU, bike) is not counted. Carries count as Pull.
+const MOVES = [
+  [/burpee pull/i, ["Pull","Push"]],[/burpee box/i, ["Push","Squat"]],[/burpee/i, ["Push"]],
+  [/devil press/i, ["Pull","Push","Hip Hinge"]],[/man maker/i, ["Squat"]],[/power maker/i, ["Push"]],
+  [/renegade|bent over row|ring row|pull across/i, ["Pull"]],
+  [/muscle up|\bmu\b|rope climb|chest to bar|c2b|pull up|pull-up/i, ["Pull"]],
+  [/carry|farmers|suitcase|march|overhead walk/i, ["Pull"]],
+  [/(db|dumbbell|kb).*snatch|snatch.*(db|dumbbell)/i, ["Pull","Hip Hinge"]],
+  [/snatch/i, ["Hip Hinge"]],
+  [/squat clean/i, ["Squat"]],[/clean.*jerk|c\+j|c&j/i, ["Push"]],[/clean/i, ["Pull","Hip Hinge"]],
+  [/deadlift|\bdl\b|rdl/i, ["Hip Hinge"]],[/swing|kbs/i, ["Hip Hinge"]],
+  [/thruster/i, ["Squat","Push"]],
+  [/push up|push-up|hrpu|wall walk|hspu|handstand|ring dip|box dip|\bdips?\b|push press|push jerk|jerk|floor press|bench|press/i, ["Push"]],
+  [/reverse lunge/i, ["Hip Hinge"]],
+  [/box jump over|bjo|step over|step up|step-up|wall ball|air squat|goblet|front squat|back squat|overhead squat|\bohs\b|pistol|squat|lunge|tuck jump|broad jump|cluster/i, ["Squat"]],
+  [/box jump/i, ["Squat","Hip Hinge"]],
+  [/toes to bar|t2b|v-up|v up|tuck up|russian twist|sit-up|sit up|situp|mountain climber|hollow|knee raise|dead bug|plank/i, ["Trunk"]],
+];
+const MONO = /\b(run|row|double unders?|single unders?|du|echo|bike|ski|hop overs?)\b/i;
+function analyzeWod(text){
+  if (/%|for quality|^\s*\d+\s*min(ute)?s?\s+skill/im.test(text)) return null;
+  const moves = [], seen = new Set(); let mono = false;
+  for (const ln of text.split("\n")){
+    if (/^\s*(rest|tc|split|one works|score|goal)\b/i.test(ln)) continue;
+    const hit = MOVES.find(([re]) => re.test(ln));
+    if (hit){ const k = ln.match(hit[0])[0].toLowerCase(); if (!seen.has(k)){ seen.add(k); moves.push(hit[1]); } continue; }
+    if (MONO.test(ln) && !/rest in/i.test(ln)) mono = true;
+  }
+  const n = moves.length;
+  if (n < 2) return null;
+  const count = {};
+  moves.forEach(fs => fs.forEach(f => count[f] = (count[f] || 0) + 1));
+  const [top, c] = Object.entries(count).sort((a,b) => b[1]-a[1])[0];
+  return { pos: (c - 1) / (n - 1), top, c, n, mono };
+}
+function mixHTML(text){
+  const a = analyzeWod(text); if (!a) return "";
+  const pct = Math.round(a.pos * 100);
+  const why = a.c === 1 ? `${a.n} movements, all different functions` : `${a.top} in ${a.c} of ${a.n} movements`;
+  return `<div class="mx" role="img" aria-label="${pct}% towards muscle endurance: ${esc(why)}"><div class="mx-lbl"><span>VO2 max</span><span>Muscle endurance</span></div><div class="mx-bar"><span class="mx-dot" style="left:${Math.min(96,Math.max(4,pct))}%"></span></div><div class="mx-why">${esc(why)}${a.mono ? " · mono not counted" : ""}</div></div>`;
+}
+
+// ---- affirmation toast when a score is submitted ----
+const AFFIRM = [
+  n => `Strong work, ${n}.`, n => `${n}, that's one more in the bank.`, n => `Proud of that one, ${n}.`,
+  n => `${n} showed up and did the work.`, n => `Consistency wins, ${n}.`, n => `${n}, future you says thanks.`,
+  n => `That's how it's done, ${n}.`, n => `${n}, stronger than last week.`, n => `Earned it, ${n}.`,
+  n => `${n}, fit at all times.`, n => `Another brick in the wall, ${n}.`, n => `${n} — cheesy and strong.`
+];
+let toastT = 0, lastAff = -1;
+function toast(msg){
+  document.querySelectorAll(".toast").forEach(t => t.remove());
+  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role","status"); t.textContent = msg;
+  document.body.appendChild(t); void t.offsetWidth; t.classList.add("in");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.classList.remove("in"); setTimeout(() => t.remove(), 450); }, 3000);
+}
+$("main").addEventListener("change", e => {
+  const inp = e.target.closest(".score input"); if (!inp || !inp.value.trim()) return;
+  const name = (PEOPLE.find(([id]) => id === inp.dataset.person) || [,""])[1];
+  let i; do { i = Math.floor(Math.random() * AFFIRM.length); } while (i === lastAff && AFFIRM.length > 1);
+  lastAff = i; toast(AFFIRM[i](name));
+});
+
 const slab = (cls, mark, label, text, notes, w) => {
-  if (notes) return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div><div class="wod">${wodHTML(text, true)}</div></div></section>`;
+  if (notes){
+    const x = (COACH[S.tab]||{})[w.no]?.[S.di] || {};
+    const sec = (h, t) => t ? `<div class="nx"><div class="nx-h">${h}</div><div class="wod">${esc(t)}</div></div>` : "";
+    const main = text ? `<div class="wod">${wodHTML(text, true)}</div>` : "";
+    return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div>${main}${sec("Stimulus", x.stimulus)}${sec("Strategy", x.strategy)}</div></section>`;
+  }
   const open = S.open === openKey(w, cls);
   const sum = scoreSummary(w, cls);
-  return `<section class="slab tap${open?" open":""}" data-part="${cls}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-row"><div class="slab-label">${label}</div><button class="score-btn" aria-expanded="${open}">${open ? "Done" : (sum ? "Edit score" : "+ Score")}</button></div><div class="wod">${wodHTML(text, false, cls === "a" && S.vidA)}</div><div class="score-sum" data-sum="${cls}">${open ? "" : sum}</div>${open ? scoreFields(w, cls) : ""}</div></section>`;
+  return `<section class="slab tap${open?" open":""}" data-part="${cls}"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-row"><div class="slab-label">${label}</div><button class="score-btn" aria-expanded="${open}">${open ? "Done" : (sum ? "Edit score" : "+ Score")}</button></div><div class="wod">${wodHTML(text, false, cls === "a" && S.vidA)}</div>${cls === "a" && S.vidA ? "" : mixHTML(text)}<div class="score-sum" data-sum="${cls}">${open ? "" : sum}</div>${open ? scoreFields(w, cls) : ""}</div></section>`;
 };
 
 function bannerHTML(){
@@ -636,7 +718,8 @@ function applyValues(values, storedAt){
   render();
 }
 
-let DATA = null, WARMUPS = {}, PICS = {};
+let DATA = null, WARMUPS = {}, PICS = {}, COACH = {};
+fetch("/notes.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { COACH = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 fetch("/img/days.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { PICS = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 const WD_KEYS = ["mon","tue","wed","thu","fri","sat","sun"];
 // Random picture per day: same for everyone on that date, no repeats within a week (while the pool has 7+).

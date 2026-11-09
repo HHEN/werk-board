@@ -1,0 +1,64 @@
+{
+ "Fall 2026": {
+  "9": [
+   {
+    "stimulus": "Intensity: RPE 8 (climbing ladder, DU breaks keep the heart rate up)\nLoading: Moderate",
+    "strategy": "DB Front Squats: unbroken up to the rung of 12, then 2 sets\nPull Ups: small sets from the rung of 9, break before failure\nDouble Unders: unbroken, one breath before you start\nTransitions: rope next to the DBs, start the DU on the beep\nGoal: steady climb, no long rests under the bar"
+   },
+   {
+    "stimulus": "Intensity: RPE 7 (steady threshold pace, same split every round)\nLoading: Moderate",
+    "strategy": "Run: steady, about 1:45–2:00\nSit-Ups: unbroken, steady breathing\nSuitcase Carry: unbroken between switches, walk fast\nTransitions: KB and abmat ready before the run\nGoal: 4:30 or less every round, same split in round 5"
+   },
+   {
+    "stimulus": "Intensity: RPE 7-8 (steady hard rounds of about 2:30)\nLoading: Moderate",
+    "strategy": "Wall Walks: steady, rest on the feet, not in the handstand\nDB Snatch: unbroken, switch arms every rep\nBox Jumps: step down, steady rhythm\nTransitions: straight from the wall to the DB\nGoal: about 2:30 per round, finish under 13min"
+   },
+   {
+    "stimulus": "Intensity: RPE 8-9 (short sprint after the technique work)\nLoading: Light-Moderate",
+    "strategy": "Wall Balls: 30 in 2 sets (20/10), 24 and 18 unbroken if possible\nBurpees: steady pace, no stops\nTransitions: ball stays at your feet, burpees right next to it\nGoal: under 7min"
+   },
+   {
+    "stimulus": "Intensity: RPE 8 (12 minutes of hard continuous work)\nLoading: Light-Moderate",
+    "strategy": "Row: hard first 40s, then settle in\nPush Jerks: sets of 5 with quick resets\nT2B: sets of 4-5 from the start\nPush Ups: sets of 8-10, break before failure\nGoal: keep moving, about 60 reps per round"
+   },
+   {
+    "stimulus": "Intensity: RPE 7-8 (30 minutes of steady hard work with partner rest)\nLoading: Moderate",
+    "strategy": "Hang Power Snatch: 8 unbroken or 5-3\nGoblet Squats: unbroken\nV-Ups: unbroken or 6-6\nRow: push hard, the round on the other side is your rest\nTransitions: fast switch, rower stays set up\nGoal: about 1:15 per round, same split for all 30 min"
+   },
+   {
+    "stimulus": "Intensity: RPE 8 (steady repeated rounds of about 1:40)\nLoading: Light-Moderate",
+    "strategy": "C2B: 6-5 or 4-4-3 from round 1\nFront Squats: 22 unbroken or 12-10\nTransitions: bar right next to the pull-up bar\nGoal: about 1:40 per round"
+   }
+  ],
+  "10": [
+   {
+    "stimulus": "Intensity: RPE 8, steady ~14min, the run is the only place to breathe\nLoading: moderate, thrusters unbroken per arm",
+    "strategy": "Run: same pace every round, ~2:00\nThrusters: 6 + 6 unbroken, switch arms without putting the DB down\nLunges: 6 per side unbroken, short steps, DB stays racked\nTransitions: DB at the start line\nGoal: under 14min, every round within 10s"
+   },
+   {
+    "stimulus": "Intensity: RPE 7, skill under light fatigue, quality muscle ups over speed\nLoading: moderate, hang power cleans touch and go",
+    "strategy": "Ring Muscle Ups: singles from round 1, reset the kip every rep\nHang Power Cleans: 4 unbroken, fast elbows\nDouble Unders: unbroken or 2 sets, breathe before you start\nGoal: 10+ rounds, ~1:50 per round"
+   },
+   {
+    "stimulus": "Intensity: RPE 9, short and fast (~10-12min), speed up as the reps drop\nLoading: moderate-heavy KB, the same KB for swings and twists",
+    "strategy": "Box Jump Overs: steady rhythm, step over is fine, never stop at the box\nKBS: 25 = 15 + 10, 20 = 12 + 8, then unbroken\nRussian Twists: unbroken, feet down if needed\nGoal: under 12min, go faster from the round of 10"
+   },
+   {
+    "stimulus": "Intensity: RPE 7, stamina, 5 repeatable rounds with ~30s rest\nLoading: heavy DBs for the march",
+    "strategy": "Row: ~1:00 at a pace you could hold for all 5 rounds\nT2B: split early (8 + 7), never to failure\nMarch: no rush, tall posture, knees to hip height\nGoal: ~2:30 per round, the same time every round\nAccessory: slow and controlled"
+   },
+   {
+    "stimulus": "Intensity: plyo max intent with full rest; WOD RPE 8, ~1:45 of man makers every round\nLoading: light DB, every man maker the same quality",
+    "strategy": "Ring Dips: unbroken or 3 + 3\nAir Squats: unbroken and fast to buy time\nMan Makers: steady pace, one every ~12s, no rest at the top\nGoal: 6+ man makers per round, the same score every round"
+   },
+   {
+    "stimulus": "Intensity: RPE 7, lactate threshold, ~25min team effort\nLoading: moderate DBs",
+    "strategy": "Runs: together, at the slower partner's pace\nPull Ups: sets of 5-10, switch often\nDB Deadlifts: 10 / 10\nSit-Ups: 20 / 20\nGoal: under 26min"
+   },
+   {
+    "stimulus": "Intensity: RPE 5-6, long aerobic, 45-60min\nLoading: light vest or ruck (20/14kg)",
+    "strategy": "Switch the leading leg every 10 reps\nBreak it into sets of 50, a sip of water every 200\nPace: ~20 step-ups per minute, ~50min\nRPE 5 option: 500 step-ups, no vest"
+   }
+  ]
+ }
+}
