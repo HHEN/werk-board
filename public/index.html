@@ -138,8 +138,10 @@ main{display:grid;gap:12px;margin-top:6px}
 .score-hint{font-size:12px;color:var(--muted);margin-top:8px}
 .empty,.banner{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:18px 16px;color:var(--muted);font-size:14px}
 .banner{border-style:solid;border-color:var(--yellow);color:var(--ink)}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,8px);z-index:40;max-width:min(420px,calc(100vw - 32px));background:var(--ink);color:var(--surface);font-size:15px;font-weight:600;line-height:1.35;text-align:center;padding:11px 18px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,.25);opacity:0;transition:opacity .4s,transform .4s;pointer-events:none}
-.toast.in{opacity:1;transform:translate(-50%,0)}
+.toast{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.85);z-index:40;width:min(340px,calc(100vw - 48px));background:linear-gradient(135deg,#f272b4,#6b9cf2);color:#fff;text-align:center;padding:22px 20px 20px;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.35);opacity:0;transition:opacity .35s,transform .35s cubic-bezier(.2,1.4,.4,1);pointer-events:none}
+.toast .t-ico{display:block;font-size:40px;line-height:1;margin-bottom:8px}
+.toast .t-msg{display:block;font-family:var(--display);font-weight:800;font-size:24px;line-height:1.15;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.toast.in{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .mx{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .mx-bar{position:relative;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--red));margin:6px 0 4px}
 .mx-dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--surface);border:3px solid var(--ink);transform:translate(-50%,-50%)}
@@ -147,7 +149,7 @@ main{display:grid;gap:12px;margin-top:6px}
 .mx-why{font-size:12px;color:var(--muted);margin-top:4px}
 .nx{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .nx-h{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-@media (prefers-reduced-motion:reduce){.toast{transition:opacity .2s}}
+@media (prefers-reduced-motion:reduce){.toast,.toast.in{transition:opacity .2s;transform:translate(-50%,-50%)}}
 
 .banner b{display:block;margin-bottom:2px}
 .foot{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
@@ -685,10 +687,11 @@ const AFFIRM = [
 let toastT = 0, lastAff = -1;
 function toast(msg){
   document.querySelectorAll(".toast").forEach(t => t.remove());
-  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role","status"); t.textContent = msg;
+  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role","status");
+  t.innerHTML = `<span class="t-ico" aria-hidden="true">${["💪","🔥","🏆","⚡","🧀"][Math.floor(Math.random()*5)]}</span><span class="t-msg">${esc(msg)}</span>`;
   document.body.appendChild(t); void t.offsetWidth; t.classList.add("in");
   clearTimeout(toastT);
-  toastT = setTimeout(() => { t.classList.remove("in"); setTimeout(() => t.remove(), 450); }, 3000);
+  toastT = setTimeout(() => { t.classList.remove("in"); setTimeout(() => t.remove(), 450); }, 5000);
 }
 function cheer(name){
   let i; do { i = Math.floor(Math.random() * AFFIRM.length); } while (i === lastAff && AFFIRM.length > 1);
