@@ -148,6 +148,7 @@ main{display:grid;gap:12px;margin-top:6px}
 .mx-lbl{display:flex;justify-content:space-between;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .mx-why{font-size:12px;color:var(--muted);margin-top:4px}
 .nx{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.nx.lw .wod{color:var(--red);font-weight:600}
 .nx-h{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 @media (prefers-reduced-motion:reduce){.toast,.toast.in{transition:opacity .2s;transform:translate(-50%,-50%)}}
 
@@ -219,6 +220,7 @@ main{display:grid;gap:12px;margin-top:6px}
   </div>
 </div>
 
+<script src="/load.js"></script>
 <script>
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -413,7 +415,8 @@ function render(){
   const CX = (COACH[S.tab]||{})[w.no]?.[S.di];
   const mA = S.vidA ? "" : mixHTML(A), mB = mixHTML(B);
   S.mixes = mA && mB ? mixHTML(A, "WOD A") + mixHTML(B, sunday ? "Workout" : "WOD B") : (mA || mB);
-  if (N || S.mixes || (CX && (A || B))) html += slab("n","!", "Notes", N, true, w);
+  S.loadWarn = (A || B) ? loadCheck() : "";
+  if (N || S.mixes || S.loadWarn || (CX && (A || B))) html += slab("n","!", "Notes", N, true, w);
   if (S.di === 6) html += feedbackSlab(w) + publishSlab();
   $("main").innerHTML = html;
   loadScores(w);
@@ -659,6 +662,11 @@ function analyzeWod(text){
   const moves = [], seen = new Set(); let mono = false;
   for (const ln of text.split("\n")){
     if (/^\s*(rest|tc|split|one works|score|goal)\b/i.test(ln)) continue;
+    if (MDB_OK){
+      const h = window.WerkLoad.classify(ln);
+      if (h){ if (h.m.fn.includes("Mono")) { mono = true; continue; } if (!seen.has(h.m.name)){ seen.add(h.m.name); moves.push(h.m.fn); } continue; }
+      continue;
+    }
     const hit = MOVES.find(([re]) => re.test(ln));
     if (hit){ const k = ln.match(hit[0])[0].toLowerCase(); if (!seen.has(k)){ seen.add(k); moves.push(hit[1]); } continue; }
     if (MONO.test(ln) && !/rest in/i.test(ln)) mono = true;
@@ -677,6 +685,23 @@ function mixHTML(text, title){
   return `<div class="mx" role="img" aria-label="${pct}% towards muscle endurance: ${esc(why)}">${title ? `<div class="nx-h">${esc(title)}</div>` : ""}<div class="mx-lbl"><span>VO2 max</span><span>Muscle endurance</span></div><div class="mx-bar"><span class="mx-dot" style="left:${Math.min(96,Math.max(4,pct))}%"></span></div><div class="mx-why">${esc(why)}${a.mono ? " · mono not counted" : ""}</div></div>`;
 }
 
+// ---- back-to-back load check (movement database: Jump, Grip, Overhead, Core) ----
+function dayAt(wi, di){
+  if (di < 0){ const p = S.weeks[wi-1]; if (!p || p.no !== S.weeks[wi].no - 1) return null; wi -= 1; di = 6; }
+  if (di > 6){ const n = S.weeks[wi+1]; if (!n || n.no !== S.weeks[wi].no + 1) return null; wi += 1; di = 0; }
+  const w = S.weeks[wi]; const g = k => (w.rows[k]||[])[di] || "";
+  if (!g("wod a") && !g("wod b")) return null;
+  return window.WerkLoad.dayLoad(g("wod a"), g("wod b"), g("notes"));
+}
+function loadCheck(){
+  if (!MDB_OK) return "";
+  const today = dayAt(S.wi, S.di); if (!today) return "";
+  const y = dayAt(S.wi, S.di - 1), t = dayAt(S.wi, S.di + 1);
+  const lines = [];
+  if (y) window.WerkLoad.compare(y, today, "yesterday", "today").forEach(x => lines.push("⚠ " + x.text));
+  if (t) window.WerkLoad.compare(today, t, "today", "tomorrow").forEach(x => lines.push("⚠ " + x.text));
+  return lines.join("\n");
+}
 // ---- affirmation toast when a score is submitted ----
 const AFFIRM = [
   n => `Strong work, ${n}.`, n => `${n}, that's one more in the bank.`, n => `Proud of that one, ${n}.`,
@@ -703,7 +728,7 @@ const slab = (cls, mark, label, text, notes, w) => {
     const x = (COACH[S.tab]||{})[w.no]?.[S.di] || {};
     const sec = (h, t) => t ? `<div class="nx"><div class="nx-h">${h}</div><div class="wod">${esc(t)}</div></div>` : "";
     const main = text ? `<div class="wod">${wodHTML(text, true)}</div>` : "";
-    return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div>${main}${sec("Stimulus", x.stimulus)}${S.mixes || ""}${sec("Strategy", x.strategy)}</div></section>`;
+    return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div>${main}${S.loadWarn ? `<div class="nx lw"><div class="nx-h">Load check</div><div class="wod">${esc(S.loadWarn)}</div></div>` : ""}${sec("Stimulus", x.stimulus)}${S.mixes || ""}${sec("Strategy", x.strategy)}</div></section>`;
   }
   const open = S.open === openKey(w, cls);
   const sum = scoreSummary(w, cls);
@@ -734,6 +759,8 @@ function applyValues(values, storedAt){
 }
 
 let DATA = null, WARMUPS = {}, PICS = {}, COACH = {};
+var MDB_OK = false;
+fetch("/movements.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(j => { if (j && window.WerkLoad){ window.WerkLoad.setDB(j); MDB_OK = true; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); } }).catch(() => {});
 fetch("/notes.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { COACH = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 fetch("/img/days.json", { cache: "no-store" }).then(r => r.ok ? r.json() : {}).then(j => { PICS = j || {}; if (S.weeks.length && !document.activeElement?.matches?.("input")) render(); }).catch(() => {});
 const WD_KEYS = ["mon","tue","wed","thu","fri","sat","sun"];

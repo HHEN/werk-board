@@ -1,0 +1,812 @@
+{
+ "version": 1,
+ "tags": [
+  "Jump",
+  "Legs",
+  "Grip",
+  "Overhead",
+  "Core"
+ ],
+ "movements": [
+  {
+   "name": "Burpee Box Jump",
+   "match": "burpee box jump",
+   "fn": [
+    "Push",
+    "Squat",
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Burpee Pull Up",
+   "match": "burpee pull",
+   "fn": [
+    "Pull",
+    "Push"
+   ],
+   "tags": [
+    "Jump",
+    "Grip"
+   ],
+   "jump": 0.5,
+   "kind": "G"
+  },
+  {
+   "name": "Burpee",
+   "match": "burpee",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 0.5,
+   "kind": "G"
+  },
+  {
+   "name": "Devil Press",
+   "match": "devil press",
+   "fn": [
+    "Pull",
+    "Push",
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Grip",
+    "Overhead",
+    "Jump"
+   ],
+   "jump": 0.5,
+   "kind": "W"
+  },
+  {
+   "name": "Man Maker",
+   "match": "man maker",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs",
+    "Overhead",
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Power Maker",
+   "match": "power maker",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Box Jump Over",
+   "match": "box jump over|\\bbjo\\b",
+   "fn": [
+    "Squat",
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Box Jump",
+   "match": "box jump",
+   "fn": [
+    "Squat",
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Tuck Jump",
+   "match": "tuck jump",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Broad Jump",
+   "match": "broad jump",
+   "fn": [
+    "Squat",
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Jumping Lunge",
+   "match": "lunge jump|jumping lunge",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Lateral Bound / Skater",
+   "match": "skater|lateral bound|lateral hop",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Jump Squat / Depth Drop",
+   "match": "jump squat|depth drop|vertical jump",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "G"
+  },
+  {
+   "name": "Hop Over",
+   "match": "hop over",
+   "fn": [
+    "Mono"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "M"
+  },
+  {
+   "name": "Double Under",
+   "match": "double under|\\bdu\\b",
+   "fn": [
+    "Mono"
+   ],
+   "tags": [
+    "Jump",
+    "Legs"
+   ],
+   "jump": 1,
+   "kind": "M"
+  },
+  {
+   "name": "Single Under",
+   "match": "single under",
+   "fn": [
+    "Mono"
+   ],
+   "tags": [
+    "Jump"
+   ],
+   "jump": 0.3,
+   "kind": "M"
+  },
+  {
+   "name": "Run",
+   "match": "\\brun\\b|shuttle",
+   "fn": [
+    "Mono"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "M"
+  },
+  {
+   "name": "Echo Bike",
+   "match": "echo|\\bbike\\b",
+   "fn": [
+    "Mono"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "M"
+  },
+  {
+   "name": "Ring Row",
+   "match": "ring row",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Renegade Row",
+   "match": "renegade",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Grip",
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Bent Over Row",
+   "match": "bent over row|\\bbor\\b",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Row (erg)",
+   "match": "\\brow\\b",
+   "fn": [
+    "Mono"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "M"
+  },
+  {
+   "name": "Wall Ball",
+   "match": "wall ball",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs",
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Thruster",
+   "match": "thruster",
+   "fn": [
+    "Squat",
+    "Push"
+   ],
+   "tags": [
+    "Legs",
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Cluster",
+   "match": "cluster",
+   "fn": [
+    "Squat",
+    "Push"
+   ],
+   "tags": [
+    "Legs",
+    "Overhead",
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Squat Clean",
+   "match": "squat clean",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs",
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Overhead Squat",
+   "match": "overhead squat|\\bohs\\b",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs",
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Overhead Lunge",
+   "match": "overhead lunge|\\boh lunge|sa oh lunge",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs",
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Reverse Lunge",
+   "match": "reverse lunge",
+   "fn": [
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Lunge",
+   "match": "lunge",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Box Step-Up / Step-Over",
+   "match": "step.?up|step.?over",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Pistol",
+   "match": "pistol",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Air Squat",
+   "match": "air squat",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Goblet Squat",
+   "match": "goblet squat",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Front Squat",
+   "match": "front squat",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Back Squat",
+   "match": "back squat",
+   "fn": [
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Clean & Jerk",
+   "match": "clean (and|&|\\+) jerk|c\\s?\\+\\s?j|c&j",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Overhead",
+    "Grip",
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Power / Hang Clean",
+   "match": "clean",
+   "fn": [
+    "Pull",
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Grip",
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "DB / KB Snatch",
+   "match": "(db|dumbbell|kb)[^\\n]*snatch|snatch[^\\n]*(db|dumbbell|kb)",
+   "fn": [
+    "Pull",
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Grip",
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Power / Hang Snatch",
+   "match": "snatch",
+   "fn": [
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Grip",
+    "Overhead",
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Deadlift",
+   "match": "deadlift|\\bdl\\b|\\brdl\\b",
+   "fn": [
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "KB Swing",
+   "match": "swing|\\bkbs\\b",
+   "fn": [
+    "Hip Hinge"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Muscle Up",
+   "match": "muscle.?up|\\bbmu\\b|\\brmu\\b",
+   "fn": [
+    "Pull",
+    "Push"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Rope Climb",
+   "match": "rope climb",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Chest to Bar",
+   "match": "chest.?to.?bar|\\bc2b\\b",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Pull Up",
+   "match": "pull.?up",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Grip"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Overhead Carry",
+   "match": "overhead (carry|walk|hold)",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Overhead",
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Carry / March",
+   "match": "carry|farmers|suitcase|march|front rack hold",
+   "fn": [
+    "Pull"
+   ],
+   "tags": [
+    "Grip",
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Toes to Bar",
+   "match": "toes.?to.?bar|\\bt2b\\b",
+   "fn": [
+    "Trunk"
+   ],
+   "tags": [
+    "Grip",
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Knee Raise",
+   "match": "knee raise",
+   "fn": [
+    "Trunk"
+   ],
+   "tags": [
+    "Grip",
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "V-Up",
+   "match": "v.?up",
+   "fn": [
+    "Trunk"
+   ],
+   "tags": [
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Tuck Up",
+   "match": "tuck.?up",
+   "fn": [
+    "Trunk"
+   ],
+   "tags": [
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Sit-Up",
+   "match": "sit.?up",
+   "fn": [
+    "Trunk"
+   ],
+   "tags": [
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Russian Twist",
+   "match": "russian twist",
+   "fn": [
+    "Trunk"
+   ],
+   "tags": [
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Hollow / Plank / Dead Bug",
+   "match": "hollow|plank|dead bug|mountain climber|reverse crunch|superman",
+   "fn": [
+    "Trunk"
+   ],
+   "tags": [
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Wall Walk",
+   "match": "wall walk",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Overhead",
+    "Core"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "HSPU",
+   "match": "hspu|handstand",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Push Up",
+   "match": "push.?up|\\bhrpu\\b",
+   "fn": [
+    "Push"
+   ],
+   "tags": [],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Dip",
+   "match": "\\bdips?\\b",
+   "fn": [
+    "Push"
+   ],
+   "tags": [],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
+   "name": "Push Press",
+   "match": "push press",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Overhead",
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Jerk",
+   "match": "jerk",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Overhead",
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Bench / Floor Press",
+   "match": "bench|floor press",
+   "fn": [
+    "Push"
+   ],
+   "tags": [],
+   "jump": 0,
+   "kind": "W"
+  },
+  {
+   "name": "Press",
+   "match": "press",
+   "fn": [
+    "Push"
+   ],
+   "tags": [
+    "Overhead"
+   ],
+   "jump": 0,
+   "kind": "W"
+  }
+ ]
+}
