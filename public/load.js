@@ -4,7 +4,7 @@
 (function (root) {
   const THRESH = {
     // [heavy, any]: warn if one day >= heavy and the neighbour >= any, or both >= both
-    Jump: { heavy: 150, any: 40, both: 80, unit: "jumps" },
+    Jump: { heavy: 100, any: 20, both: 80, unit: "jumps" },
     Grip: { both: 80, unit: "grip reps" },
     Overhead: { both: 60, unit: "overhead reps" },
     Core: { both: 150, unit: "core reps" },
