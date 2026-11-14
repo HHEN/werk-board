@@ -24,6 +24,19 @@
    "kind": "G"
   },
   {
+   "name": "Burpee Box Step-Up",
+   "match": "burpee box step",
+   "fn": [
+    "Push",
+    "Squat"
+   ],
+   "tags": [
+    "Legs"
+   ],
+   "jump": 0,
+   "kind": "G"
+  },
+  {
    "name": "Burpee Pull Up",
    "match": "burpee pull",
    "fn": [
