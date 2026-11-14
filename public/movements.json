@@ -1,5 +1,5 @@
 {
- "version": 1,
+ "version": 2,
  "tags": [
   "Jump",
   "Legs",
@@ -70,7 +70,9 @@
    "name": "Man Maker",
    "match": "man maker",
    "fn": [
-    "Squat"
+    "Squat",
+    "Pull",
+    "Push"
    ],
    "tags": [
     "Legs",
@@ -289,10 +291,12 @@
    "name": "Row (erg)",
    "match": "\\brow\\b",
    "fn": [
-    "Mono"
+    "Mono",
+    "Pull"
    ],
    "tags": [
-    "Legs"
+    "Legs",
+    "Grip"
    ],
    "jump": 0,
    "kind": "M"
@@ -546,7 +550,8 @@
    "name": "KB Swing",
    "match": "swing|\\bkbs\\b",
    "fn": [
-    "Hip Hinge"
+    "Hip Hinge",
+    "Pull"
    ],
    "tags": [
     "Grip"
@@ -633,7 +638,8 @@
    "name": "Toes to Bar",
    "match": "toes.?to.?bar|\\bt2b\\b",
    "fn": [
-    "Trunk"
+    "Trunk",
+    "Pull"
    ],
    "tags": [
     "Grip",
@@ -646,7 +652,8 @@
    "name": "Knee Raise",
    "match": "knee raise",
    "fn": [
-    "Trunk"
+    "Trunk",
+    "Pull"
    ],
    "tags": [
     "Grip",

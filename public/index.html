@@ -693,6 +693,17 @@ function dayAt(wi, di){
   if (!g("wod a") && !g("wod b")) return null;
   return window.WerkLoad.dayLoad(g("wod a"), g("wod b"), g("notes"));
 }
+function dayRef(wi, di){
+  while (di < 0){ const p = S.weeks[wi-1]; if (!p || p.no !== S.weeks[wi].no - 1) return null; wi -= 1; di += 7; }
+  while (di > 6){ const n = S.weeks[wi+1]; if (!n || n.no !== S.weeks[wi].no + 1) return null; wi += 1; di -= 7; }
+  const w = S.weeks[wi]; return { w, di, g: k => (w.rows[k]||[])[di] || "" };
+}
+function streakCheck(){
+  const days = [];
+  for (let o = -6; o <= 6; o++){ const r = dayRef(S.wi, S.di + o); days.push(r ? { label: DAYS[r.di], fns: window.WerkLoad.dayFunctions(r.g("wod a"), r.g("wod b")) } : null); }
+  return window.WerkLoad.streaks(days, 4).filter(s => s.from <= 6 && s.to >= 6)
+    .map(s => `⚠ ${s.fn} on ${s.n} days in a row (${days[s.from].label} – ${days[s.to].label})`);
+}
 function loadCheck(){
   if (!MDB_OK) return "";
   const today = dayAt(S.wi, S.di); if (!today) return "";
@@ -700,7 +711,7 @@ function loadCheck(){
   const lines = [];
   if (y) window.WerkLoad.compare(y, today, "yesterday", "today").forEach(x => lines.push("⚠ " + x.text));
   if (t) window.WerkLoad.compare(today, t, "today", "tomorrow").forEach(x => lines.push("⚠ " + x.text));
-  return lines.join("\n");
+  return lines.concat(streakCheck()).join("\n");
 }
 // ---- affirmation toast when a score is submitted ----
 const AFFIRM = [

@@ -95,6 +95,29 @@
     return out;
   }
 
-  const api = { setDB, classify, estimateWod, dayLoad, compare, THRESH };
+  // Functions trained in a day's workouts (WOD A + B, no strength %, no accessory sets). Mono only counts its extra function (e.g. Row = Pull).
+  function dayFunctions(wodA, wodB) {
+    const f = new Set();
+    for (const t of [wodA, wodB]) {
+      if (!t || /%|for quality/i.test(t)) continue;
+      for (const ln of t.split("\n")) { if (SKIP.test(ln)) continue; const h = classify(ln); if (h) h.m.fn.forEach(x => x !== "Mono" && f.add(x)); }
+    }
+    return f;
+  }
+  // days: [{label, fns:Set}] in order; returns streaks of >= 3 days for any function
+  function streaks(days, min = 3) {
+    const out = [];
+    for (const fn of ["Squat", "Pull", "Push", "Hip Hinge", "Trunk"]) {
+      let start = -1;
+      for (let i = 0; i <= days.length; i++) {
+        const on = i < days.length && days[i] && days[i].fns.has(fn);
+        if (on && start < 0) start = i;
+        if (!on && start >= 0) { if (i - start >= min) out.push({ fn, from: start, to: i - 1, n: i - start }); start = -1; }
+      }
+    }
+    return out;
+  }
+
+  const api = { setDB, classify, estimateWod, dayLoad, compare, dayFunctions, streaks, THRESH };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.WerkLoad = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
