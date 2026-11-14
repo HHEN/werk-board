@@ -664,7 +664,7 @@ function analyzeWod(text){
     if (/^\s*(rest|tc|split|one works|score|goal)\b/i.test(ln)) continue;
     if (MDB_OK){
       const h = window.WerkLoad.classify(ln);
-      if (h){ if (h.m.fn.includes("Mono")) { mono = true; continue; } if (!seen.has(h.m.name)){ seen.add(h.m.name); moves.push(h.m.fn); } continue; }
+      if (h){ if (!seen.has(h.m.name)){ seen.add(h.m.name); moves.push(h.m.fn); } continue; }
       continue;
     }
     const hit = MOVES.find(([re]) => re.test(ln));
