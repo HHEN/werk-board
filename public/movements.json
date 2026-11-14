@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "tags": [
   "Jump",
   "Legs",
@@ -21,7 +21,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Burpee"
   },
   {
    "name": "Burpee Box Step-Up",
@@ -34,7 +35,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Burpee"
   },
   {
    "name": "Burpee Pull Up",
@@ -48,7 +50,8 @@
     "Grip"
    ],
    "jump": 0.5,
-   "kind": "G"
+   "kind": "G",
+   "family": "Burpee"
   },
   {
    "name": "Burpee",
@@ -61,7 +64,8 @@
     "Legs"
    ],
    "jump": 0.5,
-   "kind": "G"
+   "kind": "G",
+   "family": "Burpee"
   },
   {
    "name": "Devil Press",
@@ -77,7 +81,8 @@
     "Jump"
    ],
    "jump": 0.5,
-   "kind": "W"
+   "kind": "W",
+   "family": "Burpee"
   },
   {
    "name": "Man Maker",
@@ -93,7 +98,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Man Maker"
   },
   {
    "name": "Power Maker",
@@ -105,7 +111,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Burpee"
   },
   {
    "name": "Box Jump Over",
@@ -119,7 +126,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Box Jump"
   },
   {
    "name": "Box Jump",
@@ -133,7 +141,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Box Jump"
   },
   {
    "name": "Tuck Jump",
@@ -146,7 +155,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Plyo"
   },
   {
    "name": "Broad Jump",
@@ -160,7 +170,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Plyo"
   },
   {
    "name": "Jumping Lunge",
@@ -173,7 +184,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Lunge"
   },
   {
    "name": "Lateral Bound / Skater",
@@ -186,7 +198,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Plyo"
   },
   {
    "name": "Jump Squat / Depth Drop",
@@ -199,7 +212,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "G"
+   "kind": "G",
+   "family": "Plyo"
   },
   {
    "name": "Hop Over",
@@ -212,7 +226,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "M"
+   "kind": "M",
+   "family": "Plyo"
   },
   {
    "name": "Double Under",
@@ -225,7 +240,8 @@
     "Legs"
    ],
    "jump": 1,
-   "kind": "M"
+   "kind": "M",
+   "family": "Jump Rope"
   },
   {
    "name": "Single Under",
@@ -237,7 +253,8 @@
     "Jump"
    ],
    "jump": 0.3,
-   "kind": "M"
+   "kind": "M",
+   "family": "Jump Rope"
   },
   {
    "name": "Run",
@@ -249,7 +266,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "M"
+   "kind": "M",
+   "family": "Run"
   },
   {
    "name": "Echo Bike",
@@ -261,7 +279,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "M"
+   "kind": "M",
+   "family": "Bike"
   },
   {
    "name": "Ring Row",
@@ -273,7 +292,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Row (pull)"
   },
   {
    "name": "Renegade Row",
@@ -286,7 +306,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Row (pull)"
   },
   {
    "name": "Bent Over Row",
@@ -298,7 +319,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Row (pull)"
   },
   {
    "name": "Row (erg)",
@@ -312,7 +334,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "M"
+   "kind": "M",
+   "family": "Row"
   },
   {
    "name": "Wall Ball",
@@ -325,7 +348,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Wall Ball"
   },
   {
    "name": "Thruster",
@@ -339,7 +363,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Thruster"
   },
   {
    "name": "Cluster",
@@ -354,7 +379,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Thruster"
   },
   {
    "name": "Squat Clean",
@@ -367,7 +393,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Clean"
   },
   {
    "name": "Overhead Squat",
@@ -380,7 +407,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Overhead Squat"
   },
   {
    "name": "Overhead Lunge",
@@ -393,7 +421,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Lunge"
   },
   {
    "name": "Reverse Lunge",
@@ -405,7 +434,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Lunge"
   },
   {
    "name": "Lunge",
@@ -417,7 +447,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Lunge"
   },
   {
    "name": "Box Step-Up / Step-Over",
@@ -429,7 +460,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Step-Up"
   },
   {
    "name": "Pistol",
@@ -441,7 +473,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Pistol"
   },
   {
    "name": "Air Squat",
@@ -453,7 +486,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Squat"
   },
   {
    "name": "Goblet Squat",
@@ -465,7 +499,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Squat"
   },
   {
    "name": "Front Squat",
@@ -477,7 +512,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Squat"
   },
   {
    "name": "Back Squat",
@@ -489,7 +525,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Squat"
   },
   {
    "name": "Clean & Jerk",
@@ -503,7 +540,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Clean"
   },
   {
    "name": "Power / Hang Clean",
@@ -517,7 +555,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Clean"
   },
   {
    "name": "DB / KB Snatch",
@@ -531,7 +570,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Snatch"
   },
   {
    "name": "Power / Hang Snatch",
@@ -545,7 +585,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Snatch"
   },
   {
    "name": "Deadlift",
@@ -557,7 +598,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Deadlift"
   },
   {
    "name": "KB Swing",
@@ -570,7 +612,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "KB Swing"
   },
   {
    "name": "Muscle Up",
@@ -583,7 +626,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Pull Up"
   },
   {
    "name": "Rope Climb",
@@ -595,7 +639,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Rope Climb"
   },
   {
    "name": "Chest to Bar",
@@ -607,7 +652,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Pull Up"
   },
   {
    "name": "Pull Up",
@@ -619,7 +665,8 @@
     "Grip"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Pull Up"
   },
   {
    "name": "Overhead Carry",
@@ -632,7 +679,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Carry"
   },
   {
    "name": "Carry / March",
@@ -645,7 +693,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Carry"
   },
   {
    "name": "Toes to Bar",
@@ -659,7 +708,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Hanging Core"
   },
   {
    "name": "Knee Raise",
@@ -673,7 +723,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Hanging Core"
   },
   {
    "name": "V-Up",
@@ -685,7 +736,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "V-Up"
   },
   {
    "name": "Tuck Up",
@@ -697,7 +749,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "V-Up"
   },
   {
    "name": "Sit-Up",
@@ -709,7 +762,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Sit-Up"
   },
   {
    "name": "Russian Twist",
@@ -721,7 +775,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Twist"
   },
   {
    "name": "Hollow / Plank / Dead Bug",
@@ -733,7 +788,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Core Hold"
   },
   {
    "name": "Wall Walk",
@@ -746,7 +802,8 @@
     "Core"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Handstand"
   },
   {
    "name": "HSPU",
@@ -758,7 +815,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Handstand"
   },
   {
    "name": "Push Up",
@@ -768,7 +826,8 @@
    ],
    "tags": [],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Push-Up"
   },
   {
    "name": "Dip",
@@ -778,7 +837,8 @@
    ],
    "tags": [],
    "jump": 0,
-   "kind": "G"
+   "kind": "G",
+   "family": "Dip"
   },
   {
    "name": "Push Press",
@@ -791,7 +851,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Overhead Press"
   },
   {
    "name": "Jerk",
@@ -804,7 +865,8 @@
     "Legs"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Overhead Press"
   },
   {
    "name": "Bench / Floor Press",
@@ -814,7 +876,8 @@
    ],
    "tags": [],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Bench"
   },
   {
    "name": "Press",
@@ -826,7 +889,8 @@
     "Overhead"
    ],
    "jump": 0,
-   "kind": "W"
+   "kind": "W",
+   "family": "Overhead Press"
   }
  ]
 }

@@ -711,6 +711,10 @@ function loadCheck(){
   const lines = [];
   if (y) window.WerkLoad.compare(y, today, "yesterday", "today").forEach(x => lines.push("⚠ " + x.text));
   if (t) window.WerkLoad.compare(today, t, "today", "tomorrow").forEach(x => lines.push("⚠ " + x.text));
+  const fam = (wi, di) => { const r = dayRef(wi, di); return r ? window.WerkLoad.dayFamilies(r.g("wod a"), r.g("wod b")) : null; };
+  const fT = fam(S.wi, S.di), fY = fam(S.wi, S.di - 1), fN = fam(S.wi, S.di + 1);
+  if (fT && fY) window.WerkLoad.familyRepeats(fY, fT, "yesterday", "today").forEach(x => lines.push("⚠ Same movement two days in a row: " + x.text));
+  if (fT && fN) window.WerkLoad.familyRepeats(fT, fN, "today", "tomorrow").forEach(x => lines.push("⚠ Same movement two days in a row: " + x.text));
   return lines.concat(streakCheck()).join("\n");
 }
 // ---- affirmation toast when a score is submitted ----

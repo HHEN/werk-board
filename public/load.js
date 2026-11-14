@@ -118,6 +118,22 @@
     return out;
   }
 
-  const api = { setDB, classify, estimateWod, dayLoad, compare, dayFunctions, streaks, THRESH };
+  // Movement families in a day's workouts (WOD A + B, no strength %, no accessory sets), mono included.
+  function dayFamilies(wodA, wodB) {
+    const f = new Map();
+    for (const t of [wodA, wodB]) {
+      if (!t || /%|for quality/i.test(t)) continue;
+      for (const ln of t.split("\n")) { if (SKIP.test(ln)) continue; const h = classify(ln); if (h && h.m.family) f.set(h.m.family, h.m.name); }
+    }
+    return f;
+  }
+  // Same family on two neighbouring days (e.g. Box Jump Overs Monday, Box Jumps Tuesday)
+  function familyRepeats(fA, fB, labelA, labelB) {
+    const out = [];
+    for (const [fam, n] of fA) if (fB.has(fam)) out.push({ fam, text: `${fam} ${labelA} (${n}) and ${labelB} (${fB.get(fam)})` });
+    return out;
+  }
+
+  const api = { setDB, classify, estimateWod, dayLoad, compare, dayFunctions, streaks, dayFamilies, familyRepeats, THRESH };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.WerkLoad = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);
