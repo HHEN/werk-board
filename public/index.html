@@ -415,7 +415,7 @@ function render(){
   const CX = (COACH[S.tab]||{})[w.no]?.[S.di];
   const mA = S.vidA ? "" : mixHTML(A), mB = mixHTML(B);
   S.mixes = mA && mB ? mixHTML(A, "WOD A") + mixHTML(B, sunday ? "Workout" : "WOD B") : (mA || mB);
-  S.loadWarn = (A || B) ? loadCheck() : "";
+  S.loadWarn = "";
   if (N || S.mixes || S.loadWarn || (CX && (A || B))) html += slab("n","!", "Notes", N, true, w);
   if (S.di === 6) html += feedbackSlab(w) + publishSlab();
   $("main").innerHTML = html;
@@ -743,7 +743,7 @@ const slab = (cls, mark, label, text, notes, w) => {
     const x = (COACH[S.tab]||{})[w.no]?.[S.di] || {};
     const sec = (h, t) => t ? `<div class="nx"><div class="nx-h">${h}</div><div class="wod">${esc(t)}</div></div>` : "";
     const main = text ? `<div class="wod">${wodHTML(text, true)}</div>` : "";
-    return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div>${main}${S.loadWarn ? `<div class="nx lw"><div class="nx-h">Load check</div><div class="wod">${esc(S.loadWarn)}</div></div>` : ""}${sec("Stimulus", x.stimulus)}${S.mixes || ""}${sec("Strategy", x.strategy)}</div></section>`;
+    return `<section class="slab notes"><div class="plate ${cls}" aria-hidden="true">${mark}</div><div class="slab-body"><div class="slab-label">${label}</div>${main}${sec("Stimulus", x.stimulus)}${S.mixes || ""}${sec("Strategy", x.strategy)}</div></section>`;
   }
   const open = S.open === openKey(w, cls);
   const sum = scoreSummary(w, cls);
